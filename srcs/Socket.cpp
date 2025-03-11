@@ -6,7 +6,7 @@
 /*   By: ltheveni <ltheveni@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/09 12:25:20 by ltheveni          #+#    #+#             */
-/*   Updated: 2025/03/10 14:04:00 by ltheveni         ###   ########.fr       */
+/*   Updated: 2025/03/11 10:57:07 by ltheveni         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,9 @@ void Socket::bindToAddress(int port) {
   server_address.sin_family = AF_INET;
   server_address.sin_addr.s_addr = htonl(INADDR_ANY);
   server_address.sin_port = htons(port);
+  int opt = 1;
 
+  setsockopt(socket_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
   if (bind(socket_fd, (struct sockaddr *)&server_address,
            sizeof(server_address)) < 0) {
     perror("Bind failed");
