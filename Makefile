@@ -6,7 +6,7 @@
 #    By: ltheveni <ltheveni@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/02/08 17:19:45 by ltheveni          #+#    #+#              #
-#    Updated: 2025/03/09 11:08:20 by ltheveni         ###   ########.fr        #
+#    Updated: 2025/03/12 10:24:17 by ltheveni         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -33,8 +33,8 @@ CXXFLAGS = -Wall -Werror -Wextra -std=c++98 $(CXX_INCLUDE)
 RM = rm -rf
 DEBUG_FLAGS = -g3
 
-SRCS = $(wildcard $(SRC_DIR)/*.cpp)
-OBJS = $(SRCS:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o)
+SRCS = $(shell find $(SRC_DIR) -type f -name "*.cpp")
+OBJS = $(patsubst $(SRC_DIR)/%.cpp, $(OBJ_DIR)/%.o, $(SRCS))
 
 # Recipe
 all: $(NAME)
@@ -46,6 +46,7 @@ $(NAME): $(OBJS)
 	@printf "Try \"./$(NAME)\" to use$(_END)\n"
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp | $(OBJ_DIR)
+	@mkdir -p $(dir $@)
 	@$(CXX) $(CXXFLAGS) -c $< -o $@
 	@printf "$(_GREEN)█$(_END)"
 

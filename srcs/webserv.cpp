@@ -6,7 +6,7 @@
 /*   By: ltheveni <ltheveni@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/09 11:08:41 by ltheveni          #+#    #+#             */
-/*   Updated: 2025/03/11 12:16:45 by ltheveni         ###   ########.fr       */
+/*   Updated: 2025/03/12 14:23:41 by ltheveni         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,34 +27,6 @@ void handleNewConnection(Socket &serverSocket, Epoll &epoll) {
   std::cout << "Connexion accept !" << std::endl;
   serverSocket.setSocketNonBlocking(client_fd);
   epoll.addFd(client_fd, EPOLLIN);
-}
-
-void handleRequest(int fd, Epoll &epoll) {
-  char buffer[1024];
-  int bytes_read = read(fd, buffer, sizeof(buffer) - 1);
-
-  if (bytes_read == -1) {
-    perror("Read failed");
-    epoll.removeFd(fd);
-    close(fd);
-  } else if (bytes_read == 0) {
-    std::cout << "Client disconnected" << std::endl;
-    epoll.removeFd(fd);
-    close(fd);
-  } else {
-    buffer[bytes_read] = '\0';
-    std::cout << "Request receive: " << buffer << std::endl;
-
-    std::string message = "HTTP/1.1 200 OK\r\n"
-                          "Content-Type: text/plain\r\n"
-                          "Content-Length: 13\r\n"
-                          "\r\n"
-                          "Hello, world!\n";
-    send(fd, message.c_str(), message.size(), 0);
-    epoll.removeFd(fd);
-    close(fd);
-    std::cout << "Response, connexion close." << std::endl;
-  }
 }
 
 void eventLoop(Epoll &epoll, Socket &serverSocket) {
