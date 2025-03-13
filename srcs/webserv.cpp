@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   webserv.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ltheveni <ltheveni@student.42.fr>          +#+  +:+       +#+        */
+/*   By: opdibia <opdibia@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/09 11:08:41 by ltheveni          #+#    #+#             */
-/*   Updated: 2025/03/12 14:23:41 by ltheveni         ###   ########.fr       */
+/*   Updated: 2025/03/13 16:37:28 by opdibia          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,16 +46,39 @@ void eventLoop(Epoll &epoll, Socket &serverSocket) {
   }
 }
 
-int main(int argc, char **argv) {
-  (void)argv;
-  (void)argc;
+// int main(int argc, char **argv) {
+//   (void)argv;
+//   (void)argc;
 
-  int port = 8080;
+//   int port = 8080;
+//   Socket serverSocket;
+//   Epoll epoll(10);
+
+//   initializeServer(serverSocket, epoll, port);
+//   eventLoop(epoll, serverSocket);
+
+//   return EXIT_SUCCESS;
+// }
+
+int main(int argc, char **argv) {
   Socket serverSocket;
   Epoll epoll(10);
-
-  initializeServer(serverSocket, epoll, port);
-  eventLoop(epoll, serverSocket);
-
+  
+  if (argc != 2){
+    std::cerr << "Error ./webserv *.conf" << std::endl;
+    return(-1);
+  }
+  try{
+    ConfigParser conf(argv[1]);
+    conf.parseConfig();
+    // conf.display_config();
+    int port = conf.servers[0].get_mapValue("port").getInt();
+    initializeServer(serverSocket, epoll, port);
+    eventLoop(epoll, serverSocket);
+  }
+  catch(std::exception & e){
+    std::cerr << e.what() << '\n';
+    return(-1);
+  }
   return EXIT_SUCCESS;
 }

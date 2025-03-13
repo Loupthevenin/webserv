@@ -1,31 +1,26 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   webserv.h                                          :+:      :+:    :+:   */
+/*   Location.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: opdibia <opdibia@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/03/11 12:15:33 by ltheveni          #+#    #+#             */
-/*   Updated: 2025/03/13 16:36:35 by opdibia          ###   ########.fr       */
+/*   Created: 2025/03/12 11:06:35 by opdibia           #+#    #+#             */
+/*   Updated: 2025/03/13 16:28:25 by opdibia          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef WEBSERV_H
-# define WEBSERV_H
+#include <map>
+#include <vector>
+#include <string>
+#include <iostream>
 
-# include "Epoll.hpp"
-# include "HttpRequest.hpp"
-# include "HttpResponse.hpp"
-# include "Socket.hpp"
-# include "ConfigParser.hpp"
-# include <cerrno>
-# include <cstddef>
-# include <cstdlib>
-# include <iostream>
-# include <netinet/in.h>
-# include <sys/socket.h>
-# include <vector>
+class Location {
+private:
+    std::map<std::string, std::string> map_location;
 
-void	handleRequest(int fd, Epoll &epoll);
-
-#endif
+public:
+    void setValue(const std::string &key, const std::string &value);
+    std::string getValue(const std::string &key) const;
+    // void display() const;
+};
