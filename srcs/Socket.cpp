@@ -6,7 +6,7 @@
 /*   By: ltheveni <ltheveni@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/09 12:25:20 by ltheveni          #+#    #+#             */
-/*   Updated: 2025/03/11 10:57:07 by ltheveni         ###   ########.fr       */
+/*   Updated: 2025/03/13 19:44:06 by ltheveni         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,15 @@
 #include <sys/socket.h>
 
 Socket::Socket() {
+  socket_fd = socket(AF_INET, SOCK_STREAM, 0);
+  if (socket_fd == -1) {
+    perror("Failed to create socket");
+    exit(EXIT_FAILURE);
+  }
+}
+
+Socket::Socket(const Socket &other) {
+	(void)other;
   socket_fd = socket(AF_INET, SOCK_STREAM, 0);
   if (socket_fd == -1) {
     perror("Failed to create socket");
