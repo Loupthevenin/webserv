@@ -6,14 +6,11 @@
 /*   By: ltheveni <ltheveni@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/11 15:23:58 by ltheveni          #+#    #+#             */
-/*   Updated: 2025/03/12 16:23:25 by ltheveni         ###   ########.fr       */
+/*   Updated: 2025/03/14 15:06:22 by ltheveni         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/HttpRequest.hpp"
-#include <cstddef>
-#include <sstream>
-#include <string>
 
 HttpRequest::HttpRequest() : method(""), uri(""), httpVersion(""), contentLength(0), headerComplete(false) {}
 
@@ -50,6 +47,34 @@ int HttpRequest::getContentLength() const {
 	return contentLength;
 }
 
+std::string HttpRequest::getHost() const {
+	std::map<std::string, std::string>::const_iterator it = headers.find("Host");
+	if (it != headers.end())
+	{
+		std::string host = it->second;
+		if (!host.empty() && host[host.size() - 1] == '\r')
+			host.erase(host.size() - 1);
+		return host;
+	}
+	return "";
+}
+
+const char *HttpRequest::getBuffer() const {
+	return buffer;
+}
+
+void HttpRequest::setBuffer(const char *data, size_t size)
+{
+	if (size < sizeof(buffer))
+	{
+		memcpy(buffer, data, size);
+		buffer[size] = '\0';
+	}
+	else {
+		std::cerr << "Buffer overflow" << std::endl;
+	}
+}
+
 bool HttpRequest::isHeaderComplete() const{
 	return headerComplete;
 }
@@ -83,12 +108,17 @@ void HttpRequest::parseHeaders() {
 	std::string line;
 
 	if (std::getline(requestStream, line)) {
+		if (!line.empty() && line[line.size() - 1] == '\r')
+			line.erase(line.size() - 1);
 		std::istringstream lineStream(line);
 		lineStream >> method >> uri >> httpVersion;
 	}
 
 	while (std::getline(requestStream, line) && line != "\r")
 	{
+		if (!line.empty() && line[line.size() - 1] == '\r')
+			line.erase(line.size() - 1);
+
 		size_t pos = line.find(": ");
 		if (pos != std::string::npos)
 	{
