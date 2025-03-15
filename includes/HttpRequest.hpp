@@ -6,7 +6,7 @@
 /*   By: ltheveni <ltheveni@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/11 15:24:13 by ltheveni          #+#    #+#             */
-/*   Updated: 2025/03/14 15:05:27 by ltheveni         ###   ########.fr       */
+/*   Updated: 2025/03/15 11:38:03 by ltheveni         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,6 @@ private:
 	int contentLength;
 	bool bodyFullyRead;
 	bool headerComplete;
-	char buffer[4096];
 public:
 	HttpRequest();
 	~HttpRequest();
@@ -43,9 +42,7 @@ public:
 	std::string getBody() const;
 	int getContentLength() const;
 	std::string getHost() const;
-	const char *getBuffer() const;
 
-	void setBuffer(const char *data, size_t size);
 	bool isHeaderComplete() const;
 	bool hasCompleteHeaders();
 	void appendRawData(const std::string &data);

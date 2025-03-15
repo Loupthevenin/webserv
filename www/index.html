@@ -1,0 +1,26 @@
+<!DOCTYPE >
+<html lang="fd">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Webserver</title>
+    <script defer src="script.js"></script>
+  </head>
+  <body>
+    <h1>Request HTTP</h1>
+
+    <h2>GET Request</h2>
+    <button onclick="sendGetRequest()">GET</button>
+    <p id="getResponse"></p>
+
+    <h2>POST Request</h2>
+    <input type="text" id="postData" placeholder="Entrez des données" />
+    <button onclick="sendPostRequest()">POST</button>
+    <p id="postResponse"></p>
+
+    <h2>DELETE Request</h2>
+    <input type="text" id="deleteData" placeholder="ID à supprimer" />
+    <button onclick="sendDeleteRequest()">DELETE</button>
+    <p id="deleteResponse"></p>
+  </body>
+</html>

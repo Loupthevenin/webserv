@@ -6,7 +6,7 @@
 /*   By: ltheveni <ltheveni@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/11 15:23:58 by ltheveni          #+#    #+#             */
-/*   Updated: 2025/03/14 15:06:22 by ltheveni         ###   ########.fr       */
+/*   Updated: 2025/03/15 11:41:41 by ltheveni         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,22 +57,6 @@ std::string HttpRequest::getHost() const {
 		return host;
 	}
 	return "";
-}
-
-const char *HttpRequest::getBuffer() const {
-	return buffer;
-}
-
-void HttpRequest::setBuffer(const char *data, size_t size)
-{
-	if (size < sizeof(buffer))
-	{
-		memcpy(buffer, data, size);
-		buffer[size] = '\0';
-	}
-	else {
-		std::cerr << "Buffer overflow" << std::endl;
-	}
 }
 
 bool HttpRequest::isHeaderComplete() const{
