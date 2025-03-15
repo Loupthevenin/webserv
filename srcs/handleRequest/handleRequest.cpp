@@ -6,11 +6,12 @@
 /*   By: ltheveni <ltheveni@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/11 16:09:00 by ltheveni          #+#    #+#             */
-/*   Updated: 2025/03/14 15:04:06 by ltheveni         ###   ########.fr       */
+/*   Updated: 2025/03/15 11:42:47 by ltheveni         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../includes/webserv.h"
+
 
 void handleMethod(int fd, HttpRequest &request, Server &serverConfig)
 {
@@ -22,9 +23,28 @@ void handleMethod(int fd, HttpRequest &request, Server &serverConfig)
 	(void)serverConfig;
 	if (request.getMethod() == "GET") {
 		// handleGet(request, &response, serverConfig);
+		std::cout << request.getUri() << std::endl;
+		std::string filePath;
+
+		if ("/methods/GET.html" == request.getUri())
+		{
+			filePath = "www/methods/GET.html";
+			response.setHeader("Content-Type", "text/html");
+		}
+		else if ("/script.js" == request.getUri())
+		{
+			filePath = "www/script.js";
+			response.setHeader("Content-Type", "application/javascript");
+		}
+		else
+		{
+			filePath = "www/index.html";
+			response.setHeader("Content-Type", "text/html");
+		}
+
+		std::string body = readFile(filePath);
 		response.setStatus(200);
-		response.setHeader("Content-Type", "text/html");
-		response.setBody("<h1>Bienvenue sur mon server: Hello world!</h1>");
+		response.setBody(body);
 	}
 	else if (request.getMethod() == "POST")
 	{
@@ -39,10 +59,9 @@ void handleMethod(int fd, HttpRequest &request, Server &serverConfig)
 	close(fd);
 }
 
-int readClientData(int fd, Epoll &epoll, std::map<int, HttpRequest> &requests) {
-	char buffer[4096];
+int readClientData(int fd, Epoll &epoll, std::map<int, HttpRequest> &requests, std::string &buffer) {
 
-	int bytes_read = read(fd, buffer, sizeof(buffer) - 1);
+	int bytes_read = read(fd, &buffer[0], buffer.size() - 1);
     if (bytes_read == -1) {
         std::cerr << "Error reading data" << std::endl;
         epoll.removeFd(fd);
@@ -54,13 +73,9 @@ int readClientData(int fd, Epoll &epoll, std::map<int, HttpRequest> &requests) {
         close(fd);
         return 0;
     }
-
-    buffer[bytes_read] = '\0';
-
+	buffer.resize(bytes_read);
 	if (requests.find(fd) == requests.end())
 		requests[fd] = HttpRequest();
-
-	requests[fd].setBuffer(buffer, bytes_read);
 	return bytes_read;
 }
 
@@ -79,19 +94,20 @@ Server *findServerConfig(HttpRequest &request, ConfigParser &conf)
 
 void handleRequest(int fd, Epoll &epoll, ConfigParser &conf) {
 	static std::map<int, HttpRequest> requests;
+	std::string buffer(4096, '\0');
 
-	int bytes_read = readClientData(fd, epoll, requests);
+	int bytes_read = readClientData(fd, epoll, requests, buffer);
 	if (bytes_read <= 0) return;
 
 	HttpRequest &request = requests[fd];
 
 	if (!request.isHeaderComplete())
-		request.appendRawData(std::string(request.getBuffer(), bytes_read));
+		request.appendRawData(buffer);
 	else if (request.getMethod() == "POST")
 	{
 		if (request.getContentLength() > 0)
 		{
-			request.appendBodyData(std::string(request.getBuffer(), bytes_read));
+			request.appendBodyData(buffer);
 			Server *serverConfig = findServerConfig(request, conf);
 				if (serverConfig)
 				{
