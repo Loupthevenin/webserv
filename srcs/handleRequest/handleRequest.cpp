@@ -6,12 +6,12 @@
 /*   By: opdibia <opdibia@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/11 16:09:00 by ltheveni          #+#    #+#             */
-/*   Updated: 2025/03/16 00:53:05 by opdibia          ###   ########.fr       */
+/*   Updated: 2025/03/16 12:14:58 by ltheveni         ###   ########.fr       */
+/*   Updated: 2025/03/15 12:45:03 by ltheveni         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../includes/webserv.h"
-
 
 void handleMethod(int fd, HttpRequest &request, Server &serverConfig)
 {
@@ -36,15 +36,30 @@ void handleMethod(int fd, HttpRequest &request, Server &serverConfig)
 			filePath = "www/script.js";
 			response.setHeader("Content-Type", "application/javascript");
 		}
+		else if ("/styles.css" == request.getUri())
+		{
+			filePath = "www/styles.css";
+			response.setHeader("Content-Type", "text/css");
+		}
+		else if ("/methods/files" == request.getUri())
+		{
+			std::string body = listFilesInDirectory("www/methods/delete");
+			response.setStatus(200);
+			response.setHeader("Content-Type", "application/json");
+			response.setBody(body);
+		}
 		else
 		{
 			filePath = "www/index.html";
 			response.setHeader("Content-Type", "text/html");
 		}
 
+		if (!filePath.empty())
+		{
 		std::string body = readFile(filePath);
 		response.setStatus(200);
 		response.setBody(body);
+		}
 	}
 	else if (request.getMethod() == "POST")
 	{
@@ -53,6 +68,7 @@ void handleMethod(int fd, HttpRequest &request, Server &serverConfig)
 	else if (request.getMethod() == "DELETE")
 	{
 		// handleDelete();
+		std::cout << "DELETE FILES" << std::endl;
 	}
 	std::string message = response.toString();
     send(fd, message.c_str(), message.size(), 0);
@@ -112,8 +128,6 @@ void handleRequest(int fd, Epoll &epoll, ConfigParser &conf) {
 				if (serverConfig)
 				{
 					size_t maxBodySize = serverConfig->get_body_client();
-					// size_t maxBodySize = 1024*1024*1024;
-					// verif le bodySize;
 					if (request.getBody().size() > maxBodySize) {
 						std::cerr << "Body size exceeds maximum allowed limits!" << std::endl;
 						sendError(fd, 413, "<h1>413 Request Entity Too Large</h1>");

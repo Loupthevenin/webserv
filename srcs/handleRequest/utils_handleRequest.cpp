@@ -6,7 +6,7 @@
 /*   By: ltheveni <ltheveni@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/14 14:57:19 by ltheveni          #+#    #+#             */
-/*   Updated: 2025/03/15 11:22:17 by ltheveni         ###   ########.fr       */
+/*   Updated: 2025/03/16 12:14:52 by ltheveni         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,4 +42,29 @@ std::string readFile(const std::string &filePath)
 		content += line + "\n";
 	file.close();
 	return content;
+}
+
+std::string listFilesInDirectory(const std::string &directory)
+{
+	std::ostringstream oss;
+	oss << "{ \"files\": [";
+
+	DIR *dir = opendir(directory.c_str());
+	if (!dir)
+		return "{ \"Error\": \"open directory\"";
+
+	struct dirent *entry;
+	bool first = true;
+	while ((entry = readdir(dir)) != NULL) {
+		std::string filename(entry->d_name);
+		if (filename != "." && filename != "..") {
+			if (!first) oss << ", ";
+			first = false;
+			oss << "\"" << filename << "\"";
+		}
+	}
+
+	closedir(dir);
+	oss << "] }";
+	return oss.str();
 }
