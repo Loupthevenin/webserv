@@ -5,22 +5,41 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Webserver</title>
     <script defer src="script.js"></script>
+    <link rel="stylesheet" type="text/css" href="styles.css" />
   </head>
   <body>
     <h1>Request HTTP</h1>
 
-    <h2>GET Request</h2>
-    <button onclick="sendGetRequest()">GET</button>
-    <p id="getResponse"></p>
+    <div class="card">
+      <h2>GET Request</h2>
+      <p>Envoie une requête GET et print les informations sur le site</p>
+      <button onclick="sendGetRequest()">SEND</button>
+      <p id="getResponse"></p>
+    </div>
 
-    <h2>POST Request</h2>
-    <input type="text" id="postData" placeholder="Entrez des données" />
-    <button onclick="sendPostRequest()">POST</button>
-    <p id="postResponse"></p>
+    <div class="card">
+      <h2>GET Request</h2>
+      <p>Envoie une requête GET et l'affiche dans une nouvelle page</p>
+      <button onclick="sendGetRequestNewWindow()">SEND</button>
+    </div>
 
-    <h2>DELETE Request</h2>
-    <input type="text" id="deleteData" placeholder="ID à supprimer" />
-    <button onclick="sendDeleteRequest()">DELETE</button>
-    <p id="deleteResponse"></p>
+    <div class="card">
+      <h2>POST Request</h2>
+      <p>Créer un fichier sur le server</p>
+      <input type="text" id="fileName" placeholder="Entrez le nom du fichier" />
+      <input type="text" id="postData" placeholder="Entrez des données" />
+      <button onclick="sendPostRequest()">SEND</button>
+      <p id="postResponse"></p>
+    </div>
+
+    <div class="card">
+      <h2>DELETE Request</h2>
+      <p>Supprime un fichier sur le server</p>
+      <select id="fileList">
+        <option value="">Sélectionner un fichier</option>
+      </select>
+      <button onclick="sendDeleteRequest()">SEND</button>
+      <p id="deleteResponse"></p>
+    </div>
   </body>
 </html>
