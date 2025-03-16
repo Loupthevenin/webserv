@@ -6,7 +6,7 @@
 /*   By: opdibia <opdibia@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/11 12:15:33 by ltheveni          #+#    #+#             */
-/*   Updated: 2025/03/15 11:22:33 by ltheveni         ###   ########.fr       */
+/*   Updated: 2025/03/16 00:49:29 by opdibia          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,14 @@ void	sendError(int fd, int statusCode, const std::string &body);
 void	closeConnexion(int fd, Epoll &epoll, std::map<int,
 			HttpRequest> &requests);
 std::string readFile(const std::string &filePath);
+
+
+//Utils ConfigParser
+bool is_returnNum(const std::string& str);
+bool is_errorNum(const std::string& str);
+bool isNum(const std::string& str) ;
+bool isValidIPv4(const std::string& ip);
+bool isValidPort(const std::string& port);
 
 // Main
 void	handleRequest(int fd, Epoll &epoll, ConfigParser &conf);

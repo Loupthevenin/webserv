@@ -6,94 +6,115 @@
 /*   By: opdibia <opdibia@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/13 11:36:49 by opdibia           #+#    #+#             */
-/*   Updated: 2025/03/13 16:25:05 by opdibia          ###   ########.fr       */
+/*   Updated: 2025/03/16 00:57:37 by opdibia          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/AnyValue.hpp"
 
-AnyValue::AnyValue() : data(NULL), type("empty") {}  
+AnyValue::AnyValue() : _data(NULL), _type("empty") {}  
 
 AnyValue::AnyValue(int val) {
-    data = new int(val);
-    type = "int";
+    _data = new int(val);
+    _type = "int";
 }
 
 AnyValue::AnyValue(double val) {
-    data = new double(val);
-    type = "double";
+    _data = new double(val);
+    _type = "double";
+}
+
+AnyValue::AnyValue(size_t val) {
+    _data = new size_t(val);
+    _type = "size_t";
 }
 
 AnyValue::AnyValue(const std::string& val) {
-    data = new std::string(val);
-    type = "string";
-}
-
-AnyValue::~AnyValue() {
-    deleteData();
+    _data = new std::string(val);
+    _type = "string";
 }
 
 AnyValue::AnyValue(const AnyValue& other) {
-    type = other.type;
-    if (other.type == "int") 
-        data = new int(*static_cast<int*>(other.data));
-    else if (other.type == "double") 
-        data = new double(*static_cast<double*>(other.data));
-    else if (other.type == "string") 
-        data = new std::string(*static_cast<std::string*>(other.data));
+    _type = other._type;
+    if (other._data == NULL)
+        _data = NULL;
+    else if (other._type == "int") 
+        _data = new int(*static_cast<int*>(other._data));
+    else if (other._type == "double") 
+        _data = new double(*static_cast<double*>(other._data));
+    else if (other._type == "size_t") 
+        _data = new size_t(*static_cast<size_t*>(other._data));
+    else if (other._type == "string") 
+        _data = new std::string(*static_cast<std::string*>(other._data));
     else 
-        data = NULL;
+        _data = NULL;
 }
 
 AnyValue& AnyValue::operator=(const AnyValue& other) {
     if (this == &other) 
         return (*this);
     deleteData();
-    type = other.type;
-    if (other.type == "int") 
-        data = new int(*static_cast<int*>(other.data));
-    else if (other.type == "double") 
-        data = new double(*static_cast<double*>(other.data));
-    else if (other.type == "string") 
-        data = new std::string(*static_cast<std::string*>(other.data));
+    _type = other._type;
+    if (other._data == NULL)
+        _data = NULL;
+    else if (other._type == "int") 
+        _data = new int(*static_cast<int*>(other._data));
+    else if (other._type == "double") 
+        _data = new double(*static_cast<double*>(other._data));
+    else if (other._type == "size_t") 
+        _data = new size_t(*static_cast<size_t*>(other._data));
+    else if (other._type == "string") 
+        _data = new std::string(*static_cast<std::string*>(other._data));
     else 
-        data = NULL;
+        _data = NULL;
     return *this;
 }
 
+AnyValue::~AnyValue() {
+    deleteData();
+}
+
 std::string AnyValue::getType() const { 
-    return type; 
+    return _type; 
 }
 
 int AnyValue::getInt() const {
-    if(type == "int") 
-        return(*static_cast<int*>(data));
+    if(_type == "int" && _data != NULL) 
+        return(*static_cast<int*>(_data));
     else
         return(0);
 }
 
 double AnyValue::getDouble() const {
-    if(type == "double") 
-        return(*static_cast<double*>(data));
+    if(_type == "double" && _data != NULL) 
+        return(*static_cast<double*>(_data));
     else
         return(0.0);
 }
 
+size_t AnyValue::getSize_t() const {
+    if(_type == "size_t" && _data != NULL) 
+        return(*static_cast<size_t*>(_data));
+    else
+        return(0);
+}
+
 std::string AnyValue::getString() const {
-    if(type == "string") 
-        return(*static_cast<std::string*>(data));
+    if(_type == "string" && _data != NULL) 
+        return(*static_cast<std::string*>(_data));
     else
         return("");
 }
 
-bool AnyValue::isEmpty()const {
-    return (data == NULL || type == "empty");
+void AnyValue::deleteData() {
+    if (_type == "int") delete static_cast<int*>(_data);
+    else if (_type == "double") delete static_cast<double*>(_data);
+    else if (_type == "size_t") delete static_cast<size_t*>(_data);
+    else if (_type == "string") delete static_cast<std::string*>(_data);
+    _data = NULL;
 }
 
-void AnyValue::deleteData() {
-    if (type == "int") delete static_cast<int*>(data);
-    else if (type == "double") delete static_cast<double*>(data);
-    else if (type == "string") delete static_cast<std::string*>(data);
-    data = NULL;
+bool AnyValue::isEmpty()const {
+    return (_data == NULL || _type == "empty");
 }
     

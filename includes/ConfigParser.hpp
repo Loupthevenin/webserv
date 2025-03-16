@@ -6,7 +6,7 @@
 /*   By: opdibia <opdibia@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/09 12:17:51 by ltheveni          #+#    #+#             */
-/*   Updated: 2025/03/13 16:29:53 by opdibia          ###   ########.fr       */
+/*   Updated: 2025/03/16 01:00:55 by opdibia          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,17 +27,22 @@ class Server;
 class ConfigParser {
 private:
   std::ifstream _infile;
+  bool check_name(std::string value);
+  void check_isNameServer(Server &currentServer);
+  void check_listen(Server &currentServer, std::string value);
+  void check_serverName(std::string value);
+  void check_allowMethod(std::string value);
+  void check_autoindex(std::string value);
+  void check_body_size(Server &currentServer, std::string value);
+  void check_value(Server &currentServer, std::string key, std::string value);
   
 public:
   std::vector<Server> servers;
   ConfigParser(const std::string &filename);
   ~ConfigParser();
   void parseConfig();
-  void check_value(Server &currentServer, std::string key, std::string value);
-  void check_listen(Server &currentServer, std::string value);
-  void check_serverName(std::string value);
-  void check_allowMethod(std::string value);
-  void  setMethod(Server &c_server, std::string value);
+  void set_errorPage(Server &currentServer, std::string value);
+  void setMethod(Server &c_server, std::string value);
   class ConfExeption : public std:: exception
   {
     public :

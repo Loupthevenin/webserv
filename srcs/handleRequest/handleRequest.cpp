@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   handleRequest.cpp                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ltheveni <ltheveni@student.42.fr>          +#+  +:+       +#+        */
+/*   By: opdibia <opdibia@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/11 16:09:00 by ltheveni          #+#    #+#             */
-/*   Updated: 2025/03/15 11:42:47 by ltheveni         ###   ########.fr       */
+/*   Updated: 2025/03/16 00:53:05 by opdibia          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,7 +85,7 @@ Server *findServerConfig(HttpRequest &request, ConfigParser &conf)
 
 	for (size_t i = 0; i < conf.servers.size(); i++)
 	{
-		std::string server_host = conf.servers[i].get_mapValue("server_name").getString();
+		std::string server_host = conf.servers[i].get_server_name();
 		if (server_host == client_host)
 			return &conf.servers[i];
 	}
@@ -111,8 +111,8 @@ void handleRequest(int fd, Epoll &epoll, ConfigParser &conf) {
 			Server *serverConfig = findServerConfig(request, conf);
 				if (serverConfig)
 				{
-					// size_t maxBodySize = serverConfig->get_mapValue("client_max_body_size").getInt();
-					size_t maxBodySize = 1024*1024;
+					size_t maxBodySize = serverConfig->get_body_client();
+					// size_t maxBodySize = 1024*1024*1024;
 					// verif le bodySize;
 					if (request.getBody().size() > maxBodySize) {
 						std::cerr << "Body size exceeds maximum allowed limits!" << std::endl;
