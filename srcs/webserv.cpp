@@ -6,7 +6,7 @@
 /*   By: opdibia <opdibia@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/09 11:08:41 by ltheveni          #+#    #+#             */
-/*   Updated: 2025/03/14 10:13:40 by ltheveni         ###   ########.fr       */
+/*   Updated: 2025/03/16 00:52:21 by opdibia          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,13 +65,13 @@ int main(int argc, char **argv) {
     std::set<int> ports;
 
     for (size_t i = 0; i < conf.servers.size(); i++) {
-      int port = conf.servers[i].get_mapValue("port").getInt();
+      int port = conf.servers[i].get_port();
       if (ports.find(port) == ports.end()) {
         initializeServer(serverSockets[i], epoll, port);
         ports.insert(port);
       }
-    }
     // conf.display_config();
+    }
     eventLoop(epoll, serverSockets, conf);
   } catch (std::exception &e) {
     std::cerr << e.what() << '\n';

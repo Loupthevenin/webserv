@@ -6,11 +6,12 @@
 /*   By: opdibia <opdibia@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/09 12:17:37 by ltheveni          #+#    #+#             */
-/*   Updated: 2025/03/13 16:26:24 by opdibia          ###   ########.fr       */
+/*   Updated: 2025/03/16 01:09:12 by opdibia          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/ConfigParser.hpp"
+#include "../../includes/webserv.h"
 
 
 ConfigParser::ConfigParser(const std::string &filename) {
@@ -53,9 +54,10 @@ void ConfigParser::parseConfig() {
       { 
         if(!currentLocationPath.empty())
         {
-          currentServer.addLocation(currentLocationPath, currentLocation);
+          currentServer.set_Location(currentLocationPath, currentLocation);
           currentLocation = Location();
         }
+        check_isNameServer(currentServer);
         servers.push_back(currentServer);
         currentServer = Server();
         currentLocationPath = "";
@@ -65,7 +67,7 @@ void ConfigParser::parseConfig() {
     {
       if(!currentLocationPath.empty())
       {
-        currentServer.addLocation(currentLocationPath, currentLocation);
+        currentServer.set_Location(currentLocationPath, currentLocation);
         currentLocation = Location();
       }
       currentLocationPath = value;      
@@ -74,47 +76,67 @@ void ConfigParser::parseConfig() {
       currentLocation.setValue(key, value);
     else if(key == "allow_methods")
       setMethod(currentServer, value);
+    else if(key == "error_page")
+        set_errorPage(currentServer, value);
     else
     {
-      if(key == "error_page")
-      {
-        int found = value.find("/", 0);
-        key.insert(10, " ");
-        key.insert(11, value, 0, found);
-        value.erase(0, found);
-      }
       check_value(currentServer, key, value);
       currentServer.set_mapValue(key, value);
     }
   }
   if (!currentLocationPath.empty())
-    currentServer.addLocation(currentLocationPath, currentLocation);
+    currentServer.set_Location(currentLocationPath, currentLocation);
   if (!currentServer.get_mapValue("listen").isEmpty())
+  {
+    check_isNameServer(currentServer);
     servers.push_back(currentServer);
-
+  }
+  else  
+    throw WrongValueExeption("listen missing");
 }
 
-bool isValidIPv4(const std::string& ip) {
-    std::stringstream ss(ip);
-    std::string segment;
-    std::vector<int> parts;
-    
-    while (std::getline(ss, segment, '.')) {
-        int num;
-        if (!(std::istringstream(segment) >> num) || num < 0 || num > 255) {
-            return false;
-        }
-        parts.push_back(num);
-    }
-    return (parts.size() == 4); 
+bool  ConfigParser::check_name(std::string value)
+{
+  for (size_t i = 0; i < servers.size(); ++i) 
+  {
+      if(value.compare(servers[i].get_mapValue("server_name").getString()) == 0)
+        return(false);
+  }  
+  return(true);
 }
 
-bool isValidPort(const std::string& port) {
-    int num;
-    if (!(std::istringstream(port) >> num) || num < 1 || num > 65535) {
-        return false;
+void ConfigParser::check_isNameServer(Server &currentServer)
+{ 
+  int i = 0;
+  std::ostringstream oss;
+  oss << i; 
+  std::string default_name = "default_server_" + oss.str();
+  
+  if(currentServer.get_mapValue("server_name").isEmpty())
+  {
+    while(!check_name(default_name))
+    {
+      i++;
+      oss.str("");
+      oss.clear();
+      oss << i; 
+      std::cout << "i = " << oss.str();
+      default_name = "default_server_" + oss.str();
     }
-    return (num); 
+    currentServer.set_mapValue("server_name", default_name);
+  }
+}
+
+void  ConfigParser::set_errorPage(Server &currentServer, std::string value){
+  int found; 
+  std::string num_error;
+  
+  found = value.find("/", 0);
+  num_error.assign(value, 0, found - 1);
+  value.erase(0, found);
+  if(!isNum(num_error) || !is_errorNum(num_error))
+    throw WrongValueExeption("invalid num error_page " + num_error);
+  currentServer.set_mapValue(num_error, value);
 }
 
 void ConfigParser::check_listen(Server &currentServer, std::string value) {
@@ -170,6 +192,62 @@ void ConfigParser::check_allowMethod(std::string value) {
     throw WrongValueExeption("invalid method " + value);
 }
 
+void  ConfigParser::check_autoindex(std::string value){
+  if(value.compare("on") && value.compare("off"))
+    throw WrongValueExeption("invalid autoindex " + value);
+}
+
+void ConfigParser::check_body_size(Server &currentServer, std::string value)
+{
+  size_t foundK;
+  size_t foundM;
+  size_t foundG;
+  size_t res;
+  size_t x = 0;
+  
+  foundK = value.find("K");
+  foundM = value.find("M");
+  foundG = value.find("G");
+  if(foundK != std::string::npos)
+  {
+    value.erase(value.begin() + foundK);
+    std::istringstream iss(value);
+    if(! isNum(value) || !(iss >> x)  || !iss.eof())
+    {
+      throw WrongValueExeption("invalid client_body_size " + value);
+    }
+    res = x*1024;
+    currentServer.set_mapValue("body_size", res);
+  }
+  else if(foundM != std::string::npos)
+  {
+    value.erase(value.begin() + foundM);
+    std::istringstream iss(value);
+    if(! isNum(value) || !(iss >> x)  || !iss.eof())
+    {
+      throw WrongValueExeption("invalid client_body_size " + value);
+    }
+    res = x*1024*1024;
+    currentServer.set_mapValue("body_size", res);
+  }
+  else if(foundG != std::string::npos)
+  {
+    value.erase(value.begin() + foundG);
+    std::istringstream iss(value);
+    if(! isNum(value) || !(iss >> x)  || !iss.eof())
+      throw WrongValueExeption("invalid client_body_size " + value);
+    res = x * 1024 * 1024 * 1024;
+    currentServer.set_mapValue("body_size", res);
+  }
+  else
+  {
+    std::istringstream iss(value);
+    if(! isNum(value) || !(iss >> x)  || !iss.eof())
+      throw WrongValueExeption("invalid client_body_size " + value);
+    currentServer.set_mapValue("body_size", x);
+  }
+}
+
 void ConfigParser::check_value(Server &currentServer, std::string key, std::string value) {
   if(value.empty())
     throw WrongValueExeption("empty key : " + key);
@@ -179,6 +257,10 @@ void ConfigParser::check_value(Server &currentServer, std::string key, std::stri
     check_serverName(value);
   if(key == "allow_methods")
     check_allowMethod(value);
+  if(key == "autoindex")
+    check_autoindex(value);
+  if(key == "client_max_body_size")
+    check_body_size(currentServer, value);
 }
 
 void  ConfigParser::setMethod(Server &c_server, std::string value) {
@@ -198,7 +280,6 @@ void  ConfigParser::setMethod(Server &c_server, std::string value) {
 // {
 //   std::cout << "size server = " << servers.size() <<  std::endl; 
 //   for (size_t i = 0; i < servers.size(); ++i) {
-//     std::cout<< i << " i " <<std::endl;
 //       servers[i].display();
 //   }
 // }

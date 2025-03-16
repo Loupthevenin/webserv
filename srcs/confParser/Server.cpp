@@ -6,7 +6,7 @@
 /*   By: opdibia <opdibia@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/11 18:01:04 by opdi-bia          #+#    #+#             */
-/*   Updated: 2025/03/13 16:25:39 by opdibia          ###   ########.fr       */
+/*   Updated: 2025/03/16 01:08:02 by opdibia          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,18 +14,41 @@
 
 
 Server::Server() {
-    method.resize(3, ""); 
+    _method.resize(3, ""); 
+}
+Server::Server(const Server& other) 
+    : _server_map(other._server_map), _locations(other._locations), _method(other._method) {
+}
+
+Server& Server::operator=(const Server& other) {
+    if (this != &other) {
+        _server_map = other._server_map;
+        _locations = other._locations;
+        _method = other._method;
+    }
+    return *this;
 }
 
 Server::~Server() {}
 
-std::map<std::string, AnyValue> Server::getConfig() const {
- 
-  return _server_map;
+void Server::set_Location(const std::string &path, const Location &location) {
+    _locations[path] = location;
 }
 
 void Server::set_mapValue(const std::string &key, const AnyValue &value) {
     _server_map[key] = value;
+}
+
+void  Server::set_method(int i, const std::string &value) {
+    if(i < 0 || i >= 3)
+        throw VectorExeption();
+    _method[i] = value;
+}
+
+std::string  Server::get_method(int i) {
+    if(!_method[i].empty())
+        return(_method[i]);
+    return("");
 }
 
 AnyValue Server::get_mapValue(const std::string &key) const {
@@ -36,20 +59,78 @@ AnyValue Server::get_mapValue(const std::string &key) const {
         return AnyValue();
 }
 
-void Server::addLocation(const std::string &path, const Location &location) {
-    locations[path] = location;
+std::map<std::string, Location> Server::getLocation() const {
+    return _locations;
 }
 
-void  Server::set_method(int i, const std::string &value) {
-    if(i < 0 || i >= 3)
-        throw VectorExeption();
-    method[i] = value;
+std::map<std::string, AnyValue> Server::getConfig() const {
+  return _server_map;
 }
 
-std::string  Server::get_method(int i) {
-    return(method[i]);
+int Server::get_port(){
+    std::map<std::string, AnyValue>::const_iterator it = _server_map.find("port");
+    if (it != _server_map.end()) 
+        return (it->second.getInt());
+    else
+        return (-1);
 }
 
+std::string Server::get_host(){
+    std::map<std::string, AnyValue>::const_iterator it = _server_map.find("host");
+    if (it != _server_map.end()) 
+        return (it->second.getString());
+    else
+        return ("");
+}
+
+size_t Server::get_body_client(){
+    std::map<std::string, AnyValue>::const_iterator it = _server_map.find("body_size");
+    if (it != _server_map.end()) 
+        return (it->second.getSize_t());
+    else
+        return (0);
+}
+
+std::string Server::get_error_page(std::string value){
+    std::map<std::string, AnyValue>::const_iterator it = _server_map.find(value);
+    if (it != _server_map.end()) 
+        return (it->second.getString());
+    else
+        return ("");
+}
+
+std::string Server::get_server_name(){
+    std::map<std::string, AnyValue>::const_iterator it = _server_map.find("server_name");
+    if (it != _server_map.end()) 
+        return (it->second.getString());
+    else
+        return ("");
+}
+
+std::string Server::get_root(){
+    std::map<std::string, AnyValue>::const_iterator it = _server_map.find("root");
+    if (it != _server_map.end()) 
+        return (it->second.getString());
+    else
+        return ("");
+}
+
+std::string Server::get_index(){
+    std::map<std::string, AnyValue>::const_iterator it = _server_map.find("index");
+    if (it != _server_map.end()) 
+        return (it->second.getString());
+    else
+        return ("");
+}
+
+std::string Server::get_autoindex(){
+    std::map<std::string, AnyValue>::const_iterator it = _server_map.find("autoindex");
+    if (it != _server_map.end()) 
+        return (it->second.getString());
+    else
+        return ("");
+}
+  
 // void Server::display() const
 // {
 //     std::cout << "----- Server Config -----" << std::endl;
@@ -58,7 +139,7 @@ std::string  Server::get_method(int i) {
 //     }
 //     std::cout << "-------------------------" << std::endl;
     
-//     for (std::map<std::string, Location>::const_iterator it = locations.begin(); it != locations.end(); ++it) {
+//     for (std::map<std::string, Location>::const_iterator it = _locations.begin(); it != _locations.end(); ++it) {
 //         std::cout << "Location: " << it->first << std::endl;
 //         it->second.display();
 //     }
