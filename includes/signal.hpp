@@ -1,20 +1,19 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   handleDelete.cpp                                   :+:      :+:    :+:   */
+/*   signal.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ltheveni <ltheveni@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/03/16 15:46:30 by ltheveni          #+#    #+#             */
-/*   Updated: 2025/03/18 14:10:45 by ltheveni         ###   ########.fr       */
+/*   Created: 2025/03/19 18:50:47 by ltheveni          #+#    #+#             */
+/*   Updated: 2025/03/19 18:57:56 by ltheveni         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../includes/webserv.h"
+#pragma once
 
-void handleDelete(HttpRequest &request, HttpResponse &response,
-                  Server &serverConfig) {
-	(void)request;
-	(void)response;
-	(void)serverConfig;
-}
+# include <csignal>
+
+void					signalHandler(int sig);
+
+extern volatile bool	g_running;

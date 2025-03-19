@@ -6,7 +6,7 @@
 /*   By: ltheveni <ltheveni@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/14 14:57:19 by ltheveni          #+#    #+#             */
-/*   Updated: 2025/03/16 12:14:52 by ltheveni         ###   ########.fr       */
+/*   Updated: 2025/03/18 20:42:41 by ltheveni         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,4 +67,16 @@ std::string listFilesInDirectory(const std::string &directory)
 	closedir(dir);
 	oss << "] }";
 	return oss.str();
+}
+
+void setFdNonBlocking(int fd) {
+  int flags = fcntl(fd, F_GETFL, 0);
+  if (flags == -1) {
+    perror("fcntl(F_GETFL) failed");
+    return;
+  }
+  if (fcntl(fd, F_SETFL, flags | O_NONBLOCK) == -1) {
+    perror("fcntl(O_NONBLOCK) failed");
+    return;
+  }
 }
