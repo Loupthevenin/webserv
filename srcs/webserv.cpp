@@ -6,7 +6,7 @@
 /*   By: opdibia <opdibia@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/09 11:08:41 by ltheveni          #+#    #+#             */
-/*   Updated: 2025/03/16 12:25:41 by ltheveni         ###   ########.fr       */
+/*   Updated: 2025/03/19 19:03:52 by ltheveni         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,8 +33,9 @@ void eventLoop(Epoll &epoll, std::vector<Socket> &serverSockets,
                ConfigParser &conf) {
   std::vector<struct epoll_event> events(10);
 
-  while (true) {
+  while (g_running) {
     int event_count = epoll.waitForEvents(events);
+	if (!g_running) break;
     for (int i = 0; i < event_count; i++) {
       int fd = events[i].data.fd;
       bool isServerSocket = false;
@@ -46,9 +47,17 @@ void eventLoop(Epoll &epoll, std::vector<Socket> &serverSockets,
         }
       }
       if (!isServerSocket && (events[i].events & EPOLLIN))
-        handleRequest(fd, epoll, conf);
+		{
+			std::map<int, CGIExec>::iterator it = epoll.getCGIExecs().find(fd);
+			if (it != epoll.getCGIExecs().end())
+				epoll.handleCGIOutput(fd);
+			else
+				handleRequest(fd, epoll, conf);
+			}
     }
+	epoll.isCGIFdInEvents(events);
   }
+	epoll.clean();
 }
 
 int main(int argc, char **argv) {
@@ -56,6 +65,7 @@ int main(int argc, char **argv) {
     std::cerr << "Error ./webserv *.conf" << std::endl;
     return (-1);
   }
+	signal(SIGINT, signalHandler);
   try {
     ConfigParser conf(argv[1]);
     conf.parseConfig();
@@ -70,7 +80,7 @@ int main(int argc, char **argv) {
         initializeServer(serverSockets[i], epoll, port);
         ports.insert(port);
       }
-    // conf.display_config();
+      // conf.display_config();
     }
     eventLoop(epoll, serverSockets, conf);
   } catch (std::exception &e) {

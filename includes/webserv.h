@@ -6,18 +6,20 @@
 /*   By: opdibia <opdibia@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/11 12:15:33 by ltheveni          #+#    #+#             */
-/*   Updated: 2025/03/16 12:15:38 by ltheveni         ###   ########.fr       */
+/*   Updated: 2025/03/19 18:58:07 by ltheveni         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef WEBSERV_H
 # define WEBSERV_H
 
+# include "CGIExec.hpp"
 # include "ConfigParser.hpp"
 # include "Epoll.hpp"
 # include "HttpRequest.hpp"
 # include "HttpResponse.hpp"
 # include "Socket.hpp"
+# include "signal.hpp"
 # include <cerrno>
 # include <cstddef>
 # include <cstdlib>
@@ -34,6 +36,7 @@ void	closeConnexion(int fd, Epoll &epoll, std::map<int,
 			HttpRequest> &requests);
 std::string readFile(const std::string &filePath);
 std::string listFilesInDirectory(const std::string &directory);
+void	setFdNonBlocking(int fd);
 
 // Utils ConfigParser
 bool	is_returnNum(const std::string &str);
@@ -48,7 +51,8 @@ void	handleGet(HttpRequest &request, HttpResponse &response,
 			Server &serverConfig);
 void	handlePost(HttpRequest &request, HttpResponse &response,
 			Server &serverConfig);
-void	handleDelete(HttpRequest &request, HttpResponse &response,
-			Server &serverConfig);
+void	handleDelete(HttpRequest &request,
+					HttpResponse &response,
+					Server &serverConfig);
 
 #endif
