@@ -6,7 +6,7 @@
 /*   By: opdibia <opdibia@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/09 11:08:41 by ltheveni          #+#    #+#             */
-/*   Updated: 2025/03/19 19:03:52 by ltheveni         ###   ########.fr       */
+/*   Updated: 2025/03/23 11:50:44 by ltheveni         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,7 +35,8 @@ void eventLoop(Epoll &epoll, std::vector<Socket> &serverSockets,
 
   while (g_running) {
     int event_count = epoll.waitForEvents(events);
-	if (!g_running) break;
+    if (!g_running)
+      break;
     for (int i = 0; i < event_count; i++) {
       int fd = events[i].data.fd;
       bool isServerSocket = false;
@@ -46,18 +47,11 @@ void eventLoop(Epoll &epoll, std::vector<Socket> &serverSockets,
           break;
         }
       }
-      if (!isServerSocket && (events[i].events & EPOLLIN))
-		{
-			std::map<int, CGIExec>::iterator it = epoll.getCGIExecs().find(fd);
-			if (it != epoll.getCGIExecs().end())
-				epoll.handleCGIOutput(fd);
-			else
-				handleRequest(fd, epoll, conf);
-			}
+      if (!isServerSocket && (events[i].events & EPOLLIN)) {
+        handleRequest(fd, epoll, conf);
+      }
     }
-	epoll.isCGIFdInEvents(events);
   }
-	epoll.clean();
 }
 
 int main(int argc, char **argv) {
@@ -65,7 +59,7 @@ int main(int argc, char **argv) {
     std::cerr << "Error ./webserv *.conf" << std::endl;
     return (-1);
   }
-	signal(SIGINT, signalHandler);
+  signal(SIGINT, signalHandler);
   try {
     ConfigParser conf(argv[1]);
     conf.parseConfig();

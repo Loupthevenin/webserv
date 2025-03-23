@@ -6,7 +6,7 @@
 /*   By: opdibia <opdibia@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/21 16:51:53 by opdibia           #+#    #+#             */
-/*   Updated: 2025/03/23 01:11:55 by opdibia          ###   ########.fr       */
+/*   Updated: 2025/03/23 12:05:01 by ltheveni         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,7 +77,7 @@ static void    set_response(Server &server, HttpResponse &response, std::string 
 }
 
 
-int    check_server(HttpRequest &request, HttpResponse &response, Server &serverConfig, int fd, Epoll &epoll){
+int    check_server(HttpRequest &request, HttpResponse &response, Server &serverConfig, int fd){
     std::string filePath;
     
     // if(serverConfig.is_method("GET") == false)
@@ -95,6 +95,15 @@ int    check_server(HttpRequest &request, HttpResponse &response, Server &server
         return(0); 
     }
     filePath = set_filePath(serverConfig, request);
+     if(check_header(filePath) == "cgi")
+    {
+        CGIExec cgi(filePath, request, fd);
+      if (cgi.execute() == -1)
+		{
+			// error;
+		}
+      return(1);
+    }
     if(filePath[filePath.size() - 1] == '/')
     {
         if(!serverConfig.get_index().empty())
@@ -125,17 +134,6 @@ int    check_server(HttpRequest &request, HttpResponse &response, Server &server
         response.setStatus(200);
         response.setBody(body);
         return(0);
-    }
-     if(check_header(filePath) == "cgi")
-    {
-        CGIExec cgi("www/cgi/cgi.sh", request, fd);
-      int pipe_fd = cgi.execute();
-      if (pipe_fd == -1) {
-        // error;
-      }
-		setFdNonBlocking(pipe_fd);
-      epoll.addCGIProcess(pipe_fd, cgi);
-      return(1);
     }
     set_response(serverConfig, response, filePath);
     return(0);

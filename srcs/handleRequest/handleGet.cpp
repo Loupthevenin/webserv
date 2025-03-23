@@ -6,7 +6,7 @@
 /*   By: opdibia <opdibia@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/17 11:28:17 by opdi-bia          #+#    #+#             */
-/*   Updated: 2025/03/23 01:15:12 by opdibia          ###   ########.fr       */
+/*   Updated: 2025/03/23 08:48:44 by ltheveni         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,21 +34,21 @@ std::string find_loc(HttpRequest &request, Server &serverConfig) {
     return("");
 }
 
-int	handleGet(HttpRequest &request, HttpResponse &response, Server &serverConfig, int fd, Epoll &epoll){
+int	handleGet(HttpRequest &request, HttpResponse &response, Server &serverConfig, int fd){
     
     std::string loc = find_loc(request, serverConfig);
     // std::cout <<"uri ici = " << request.getUri() << std::endl;
     // std::cout <<"loc ici = " << loc << std::endl;
     if(loc.empty())
     {
-        if(check_server(request, response, serverConfig, fd, epoll) == 1)
+        if(check_server(request, response, serverConfig, fd) == 1)
             return(1);
     }
     else
     {
         const std::map<std::string, Location>& locations = serverConfig.getLocation();
         Location loc_path = locations.at(loc);
-        if(check_location(loc_path, serverConfig, request, response, fd, epoll) == 1)
+        if(check_location(loc_path, serverConfig, request, response, fd) == 1)
             return(1);
     }
     return(0);

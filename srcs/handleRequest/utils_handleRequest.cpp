@@ -6,67 +6,65 @@
 /*   By: opdibia <opdibia@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/14 14:57:19 by ltheveni          #+#    #+#             */
-/*   Updated: 2025/03/23 00:36:16 by opdibia          ###   ########.fr       */
+/*   Updated: 2025/03/23 10:17:15 by ltheveni         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../includes/webserv.h"
 
-void sendError(int fd, int statusCode, const std::string &body)
-{
-	HttpResponse response;
-	response.setStatus(statusCode);
-	// filepath here;
-	response.setBody(body);
+void sendError(int fd, int statusCode, const std::string &body) {
+  HttpResponse response;
+  response.setStatus(statusCode);
+  // filepath here;
+  response.setBody(body);
 
-	std::string message = response.toString();
-	send(fd, message.c_str(), message.size(), 0);
+  std::string message = response.toString();
+  send(fd, message.c_str(), message.size(), 0);
 }
 
-void closeConnexion(int fd, Epoll &epoll, std::map<int, HttpRequest> &requests)
-{
-	requests.erase(fd);
-	epoll.removeFd(fd);
-	close(fd);
+void closeConnexion(int fd, Epoll &epoll,
+                    std::map<int, HttpRequest> &requests) {
+  requests.erase(fd);
+  epoll.removeFd(fd);
+  close(fd);
 }
 
-std::string readFile(const std::string &filePath)
-{
-	std::ifstream file(filePath.c_str());
-	if (!file.is_open())
-		return "404";
+std::string readFile(const std::string &filePath) {
+  std::ifstream file(filePath.c_str());
+  if (!file.is_open())
+    return "404";
 
-	std::string content;
-	std::string line;
-	while (std::getline(file, line))
-		content += line + "\n";
-	file.close();
-	return content;
+  std::string content;
+  std::string line;
+  while (std::getline(file, line))
+    content += line + "\n";
+  file.close();
+  return content;
 }
 
-std::string listFilesInDirectory(const std::string &directory)
-{
-	std::ostringstream oss;
-	oss << "{ \"files\": [";
+std::string listFilesInDirectory(const std::string &directory) {
+  std::ostringstream oss;
+  oss << "{ \"files\": [";
 
-	DIR *dir = opendir(directory.c_str());
-	if (!dir)
-		return "{ \"Error\": \"open directory\"";
+  DIR *dir = opendir(directory.c_str());
+  if (!dir)
+    return "{ \"Error\": \"open directory\"";
 
-	struct dirent *entry;
-	bool first = true;
-	while ((entry = readdir(dir)) != NULL) {
-		std::string filename(entry->d_name);
-		if (filename != "." && filename != "..") {
-			if (!first) oss << ", ";
-			first = false;
-			oss << "\"" << filename << "\"";
-		}
-	}
+  struct dirent *entry;
+  bool first = true;
+  while ((entry = readdir(dir)) != NULL) {
+    std::string filename(entry->d_name);
+    if (filename != "." && filename != "..") {
+      if (!first)
+        oss << ", ";
+      first = false;
+      oss << "\"" << filename << "\"";
+    }
+  }
 
-	closedir(dir);
-	oss << "] }";
-	return oss.str();
+  closedir(dir);
+  oss << "] }";
+  return oss.str();
 }
 
 void setFdNonBlocking(int fd) {
@@ -174,15 +172,16 @@ std::string  check_header(std::string uri){
     c_type[".css"]  = "text/css";
     c_type[".json"] = "application/json";
     c_type[".sh"] = "cgi";
+    c_type[".py"] = "cgi";
     std::size_t found = uri.find_last_of(".");
-    std::string extension = "";
     
     if (found!=std::string::npos)
     {
-        extension = uri.substr(found);
-        if(!c_type[extension].empty())
-            return("application/octet-stream");
-        return(c_type[extension]);  
+		std::string extension = uri.substr(found);
+		std::map<std::string, std::string>::iterator it = c_type.find(extension);
+		if (it != c_type.end())
+			return it->second;
+        return("application/octet-stream");
     }
-    return(extension);
+    return("application/octet-stream");
 }
