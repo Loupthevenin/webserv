@@ -6,7 +6,7 @@
 /*   By: opdibia <opdibia@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/12 11:06:35 by opdibia           #+#    #+#             */
-/*   Updated: 2025/03/16 01:11:41 by opdibia          ###   ########.fr       */
+/*   Updated: 2025/03/23 00:42:52 by opdibia          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,6 +41,7 @@ public:
     void  setMethod(std::string value);
     std::string  get_method(int i) const;
     AnyValue getValue(const std::string &key) const;
+    std::string get_nameLoc() const;
     size_t get_body_client() const;
     std::string get_error_page(std::string value) const;
     std::string get_root() const;
@@ -51,6 +52,8 @@ public:
     std::string get_cgi_enable() const;
     std::string get_cgi_extension() const;
     std::string get_cgi_path() const;
+    bool is_emptyMethods();
+    bool is_method(std::string str);
     class WrongValueExeption : public std::exception {
     private:
         std::string message;

@@ -6,7 +6,7 @@
 /*   By: opdibia <opdibia@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/11 18:01:24 by opdi-bia          #+#    #+#             */
-/*   Updated: 2025/03/16 01:08:08 by opdibia          ###   ########.fr       */
+/*   Updated: 2025/03/23 00:53:08 by opdibia          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,6 +43,8 @@ public:
   std::string get_root();
   std::string get_index();
   std::string get_autoindex();
+  bool is_method(std::string str);
+
   class VectorExeption : public std:: exception
   {
     public :
@@ -50,6 +52,19 @@ public:
     {
         return("method limit exceeded");
     }
+  };
+  class WrongValueExeption : public std::exception 
+  {
+    private:
+        std::string message;
+
+    public:
+        explicit WrongValueExeption(const std::string& msg) : message(msg) {}
+
+        virtual const char* what() const throw() {
+            return message.c_str();
+        }
+        virtual ~WrongValueExeption() throw() {} 
   };
   // void display() const;
 };

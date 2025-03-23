@@ -6,7 +6,7 @@
 /*   By: opdibia <opdibia@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/13 10:03:21 by ltheveni          #+#    #+#             */
-/*   Updated: 2025/03/15 14:22:31 by opdibia          ###   ########.fr       */
+/*   Updated: 2025/03/23 01:08:11 by opdibia          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,8 @@ public:
 	void setStatus(int code);
 	void setHeader(const std::string &key, const std::string &value);
 	void setBody(const std::string &bodyContent);
-
+	int getStatus();
+	std::string getBody();
+	
 	std::string toString() const;
 };

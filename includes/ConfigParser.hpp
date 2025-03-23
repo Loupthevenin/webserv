@@ -6,7 +6,7 @@
 /*   By: opdibia <opdibia@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/09 12:17:51 by ltheveni          #+#    #+#             */
-/*   Updated: 2025/03/16 01:00:55 by opdibia          ###   ########.fr       */
+/*   Updated: 2025/03/23 00:48:56 by opdibia          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,7 +59,8 @@ public:
        return("Failed to open input file .conf");
     }
   };
-  class WrongValueExeption : public std::exception {
+  class WrongValueExeption : public std::exception 
+  {
     private:
         std::string message;
 
