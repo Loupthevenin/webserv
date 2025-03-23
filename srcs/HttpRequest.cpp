@@ -6,7 +6,7 @@
 /*   By: ltheveni <ltheveni@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/11 15:23:58 by ltheveni          #+#    #+#             */
-/*   Updated: 2025/03/23 10:20:03 by ltheveni         ###   ########.fr       */
+/*   Updated: 2025/03/23 17:13:47 by ltheveni         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,6 +51,10 @@ std::string HttpRequest::getHost() const {
   return "";
 }
 
+std::string HttpRequest::getQuery() const {
+	return queryString;
+}
+
 bool HttpRequest::isHeaderComplete() const { return headerComplete; }
 
 bool HttpRequest::hasCompleteHeaders() {
@@ -85,6 +89,16 @@ void HttpRequest::parseHeaders() {
     std::istringstream lineStream(line);
     lineStream >> method >> uri >> httpVersion;
   }
+
+	size_t queryPos = uri.find('?');
+	if (queryPos != std::string::npos)
+	{
+		std::string tmp = uri.substr(0, queryPos);
+		queryString = uri.substr(queryPos + 1);
+		uri = tmp;
+	}
+	else
+		queryString = "";
 
   while (std::getline(requestStream, line) && line != "\r") {
     if (!line.empty() && line[line.size() - 1] == '\r')

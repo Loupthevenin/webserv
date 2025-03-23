@@ -6,7 +6,7 @@
 /*   By: opdibia <opdibia@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/21 16:51:53 by opdibia           #+#    #+#             */
-/*   Updated: 2025/03/23 12:05:01 by ltheveni         ###   ########.fr       */
+/*   Updated: 2025/03/23 16:45:44 by ltheveni         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -100,7 +100,11 @@ int    check_server(HttpRequest &request, HttpResponse &response, Server &server
         CGIExec cgi(filePath, request, fd);
       if (cgi.execute() == -1)
 		{
-			// error;
+			// leaks !!!!! + no response;
+			int error_code = cgi.getHttpErrorCode();
+			response.setHeader("Content_type", "text/html");
+			set_error(serverConfig, response, error_code);
+			return (0);
 		}
       return(1);
     }

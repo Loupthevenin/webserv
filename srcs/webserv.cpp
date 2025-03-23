@@ -6,13 +6,13 @@
 /*   By: opdibia <opdibia@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/09 11:08:41 by ltheveni          #+#    #+#             */
-/*   Updated: 2025/03/23 11:50:44 by ltheveni         ###   ########.fr       */
+/*   Updated: 2025/03/23 15:13:52 by ltheveni         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/webserv.h"
 
-void initializeServer(Socket &serverSocket, Epoll &epoll, int port) {
+static void initializeServer(Socket &serverSocket, Epoll &epoll, int port) {
   serverSocket.bindToAddress(port);
   std::cout << "Bind port: " << port << std::endl;
   serverSocket.setSocketNonBlocking(serverSocket.getFd());
@@ -21,7 +21,7 @@ void initializeServer(Socket &serverSocket, Epoll &epoll, int port) {
   epoll.addFd(serverSocket.getFd(), EPOLLIN);
 }
 
-void handleNewConnection(Socket &serverSocket, Epoll &epoll) {
+static void handleNewConnection(Socket &serverSocket, Epoll &epoll) {
 
   int client_fd = serverSocket.acceptConnection();
   std::cout << "Connexion accept !" << std::endl;
@@ -29,7 +29,7 @@ void handleNewConnection(Socket &serverSocket, Epoll &epoll) {
   epoll.addFd(client_fd, EPOLLIN);
 }
 
-void eventLoop(Epoll &epoll, std::vector<Socket> &serverSockets,
+static void eventLoop(Epoll &epoll, std::vector<Socket> &serverSockets,
                ConfigParser &conf) {
   std::vector<struct epoll_event> events(10);
 
