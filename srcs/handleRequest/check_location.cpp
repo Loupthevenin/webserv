@@ -6,7 +6,7 @@
 /*   By: opdibia <opdibia@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/21 16:51:49 by opdibia           #+#    #+#             */
-/*   Updated: 2025/03/23 01:13:49 by opdibia          ###   ########.fr       */
+/*   Updated: 2025/03/23 12:04:55 by ltheveni         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -151,7 +151,7 @@ static std::string  set_filePath(Location &location, std::string locName, Server
     return(filePath);
 }
 
-int    check_location(Location &location, Server &serverConfig, HttpRequest &request, HttpResponse &response, int fd, Epoll &epoll){
+int    check_location(Location &location, Server &serverConfig, HttpRequest &request, HttpResponse &response, int fd){
     std::string filePath;
     
     if(!location.is_method("GET") && !serverConfig.is_method("GET"))
@@ -181,6 +181,15 @@ int    check_location(Location &location, Server &serverConfig, HttpRequest &req
         return(0);
     }
     filePath = set_filePath(location, location.get_nameLoc(), serverConfig, request);
+    if(check_header(filePath) == "cgi")
+    {
+        CGIExec cgi(filePath, request, fd);
+      if (cgi.execute() == -1)
+		{
+			// error;
+		}
+      return(1);
+    }
     if(filePath[filePath.size() - 1] == '/')
     {
         if(!location.get_index().empty())
@@ -210,23 +219,6 @@ int    check_location(Location &location, Server &serverConfig, HttpRequest &req
             }
         }
     }
-    if(check_header(filePath) == "cgi")
-    {
-        CGIExec cgi("www/cgi/cgi.sh", request, fd);
-      int pipe_fd = cgi.execute();
-      if (pipe_fd == -1) {
-        // error;
-      }
-		setFdNonBlocking(pipe_fd);
-      epoll.addCGIProcess(pipe_fd, cgi);
-      return(1);
-    }
     set_response(serverConfig, response, location, filePath);
     return(0);
 }
-
-
-
-
-
-

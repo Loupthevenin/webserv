@@ -6,15 +6,17 @@
 /*   By: ltheveni <ltheveni@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/18 09:44:07 by ltheveni          #+#    #+#             */
-/*   Updated: 2025/03/19 15:46:28 by ltheveni         ###   ########.fr       */
+/*   Updated: 2025/03/22 18:22:41 by ltheveni         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 
 #include "HttpRequest.hpp"
+#include <cerrno>
 #include <cstdio>
 #include <cstdlib>
+#include <fcntl.h>
 #include <iostream>
 #include <map>
 #include <string>
@@ -31,11 +33,13 @@ private:
   int pipe_in[2];
   int pipe_out[2];
   int cgi_fd;
-  bool isComplete;
   pid_t cgi_pid;
-  std::string cgiOutput;
 
-  std::string getInterpreter(const std::string &extension) const;
+  void setupEnvironment(const HttpRequest &request);
+  bool isValidScriptPath() const;
+  char **convertEnvToCharArray();
+  char **convertArgsToCharArray(const std::vector<std::string> &args);
+  void freeCharArray(char **array) const;
 
 public:
   CGIExec();
@@ -44,11 +48,8 @@ public:
 
   int getPipeIn() const;
   int getPipeOut() const;
-  bool getIsComplete() const;
   pid_t getPid() const;
-  std::string getCGIOutput() const;
   int getClientFd() const;
 
   int execute();
-  int readCGIOutput();
 };

@@ -6,7 +6,7 @@
 /*   By: opdibia <opdibia@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/11 12:15:33 by ltheveni          #+#    #+#             */
-/*   Updated: 2025/03/23 01:13:12 by opdibia          ###   ########.fr       */
+/*   Updated: 2025/03/23 08:53:24 by ltheveni         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,9 +28,8 @@
 # include <netinet/in.h>
 # include <set>
 # include <sys/socket.h>
+# include <sys/stat.h>
 # include <vector>
-#include <sys/stat.h>
-#include <dirent.h>
 
 // Utils handleRequest
 void	sendError(int fd, int statusCode, const std::string &body);
@@ -39,15 +38,17 @@ void	closeConnexion(int fd, Epoll &epoll, std::map<int,
 std::string readFile(const std::string &filePath);
 std::string listFilesInDirectory(const std::string &directory);
 void	setFdNonBlocking(int fd);
-int    check_location(Location &location, Server &serverConfig, HttpRequest &request, HttpResponse &response, int fd, Epoll &epoll);
-std::string   find_loc(HttpRequest &request, Server &serverConfig);
-int    check_server(HttpRequest &request, HttpResponse &response, Server &serverConfig, int fd, Epoll &epoll);
-int     check_file(std::string& filePath);
-bool    body_size(HttpRequest &request, Location location);
+int		check_location(Location &location, Server &serverConfig,
+			HttpRequest &request, HttpResponse &response, int fd);
+std::string find_loc(HttpRequest &request, Server &serverConfig);
+int		check_server(HttpRequest &request, HttpResponse &response,
+			Server &serverConfig, int fd);
+int		check_file(std::string &filePath);
+bool	body_size(HttpRequest &request, Location location);
 std::string buildErrorResponse(int code);
 std::string check_error_server(int code, Server &serverConf);
-std::string set_autoindex(const std::string& filePath);
-std::string  check_header(std::string uri);
+std::string set_autoindex(const std::string &filePath);
+std::string check_header(std::string uri);
 
 // Utils ConfigParser
 bool	is_returnNum(const std::string &str);
@@ -58,8 +59,8 @@ bool	isValidPort(const std::string &port);
 
 // Main
 void	handleRequest(int fd, Epoll &epoll, ConfigParser &conf);
-int	handleGet(HttpRequest &request, HttpResponse &response,
-			Server &serverConfig, int fd, Epoll &epoll);
+int		handleGet(HttpRequest &request, HttpResponse &response,
+			Server &serverConfig, int fd);
 void	handlePost(HttpRequest &request, HttpResponse &response,
 			Server &serverConfig);
 void	handleDelete(HttpRequest &request, HttpResponse &response,

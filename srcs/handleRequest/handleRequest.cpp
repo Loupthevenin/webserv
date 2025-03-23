@@ -6,22 +6,32 @@
 /*   By: opdibia <opdibia@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/11 16:09:00 by ltheveni          #+#    #+#             */
-/*   Updated: 2025/03/23 01:10:17 by opdibia          ###   ########.fr       */
+/*   Updated: 2025/03/23 12:38:28 by ltheveni         ###   ########.fr       */
+/*   Updated: 2025/03/22 14:29:43 by ltheveni         ###   ########.fr       */
+/*   Updated: 2025/03/15 12:45:03 by ltheveni         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 
 #include "../../includes/webserv.h"
 
-void handleMethod(int fd, Epoll &epoll, HttpRequest &request,
+void handleMethod(int fd, HttpRequest &request,
                   Server &serverConfig) {
   request.printRequest();
 
   HttpResponse response;
 
+	(void)serverConfig;
   if (request.getMethod() == "GET") {
-		if(handleGet(request, response, serverConfig, fd, epoll) == 1)
-            return;
+		if(handleGet(request, response, serverConfig, fd) == 1)
+		          return;
+		//       CGIExec cgi("www/cgi/cgi.sh", request, fd);
+		//     if (cgi.execute() == -1)
+		// {
+		// 	std::cout << "error" << std::endl;
+		// 	// error;
+		// }
+		//     return;
   } else if (request.getMethod() == "POST") {
     // handlePost();
   } else if (request.getMethod() == "DELETE") {
@@ -130,7 +140,7 @@ void handleRequest(int fd, Epoll &epoll, ConfigParser &conf) {
       closeConnexion(fd, epoll, requests);
       return;
     }
-    handleMethod(fd, epoll, request, *serverConfig);
+    handleMethod(fd, request, *serverConfig);
     requests.erase(fd);
   }
 }

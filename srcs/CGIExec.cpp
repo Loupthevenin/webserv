@@ -6,119 +6,131 @@
 /*   By: ltheveni <ltheveni@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/18 09:43:53 by ltheveni          #+#    #+#             */
-/*   Updated: 2025/03/19 19:13:40 by ltheveni         ###   ########.fr       */
+/*   Updated: 2025/03/23 13:28:58 by ltheveni         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/CGIExec.hpp"
+#include <sys/wait.h>
+#include <unistd.h>
 
-CGIExec::CGIExec()
-    : scriptPath(""), cgi_fd(-1), isComplete(false), cgi_pid(0) {}
+CGIExec::CGIExec() : scriptPath(""), cgi_fd(-1), cgi_pid(0) {}
 
 CGIExec::CGIExec(const std::string &script, const HttpRequest &request,
                  int client_fd)
-    : scriptPath(script), cgi_fd(client_fd), isComplete(false), cgi_pid(0) {
-  if (pipe(pipe_out) == -1 || pipe(pipe_in) == -1) {
+    : scriptPath(script), cgi_fd(client_fd), cgi_pid(0) {
+  if (pipe(pipe_in) == -1) {
     std::cerr << "pipe: Error" << std::endl;
     return;
   }
-  env["REQUEST_METHOD"] = request.getMethod();
-  env["REQUEST_URI"] = request.getUri();
-  env["CONTENT-LENGTH"] = request.getHeader("Content-Length");
-  env["CONTENT-TYPE"] = request.getHeader("Content-Type");
+  setupEnvironment(request);
 }
 
-CGIExec::~CGIExec() {
-// pas clair ici
-  close(pipe_in[0]);
-  close(pipe_in[1]);
-  close(pipe_out[1]);
+CGIExec::~CGIExec() {}
+
+void CGIExec::setupEnvironment(const HttpRequest &request) {
+  env["REQUEST_METHOD"] = request.getMethod();
+  env["REQUEST_URI"] = request.getUri();
+  env["CONTENT_LENGTH"] = request.getHeader("Content-Length");
+  env["CONTENT_TYPE"] = request.getHeader("Content-Type");
+  env["SCRIPT_FILENAME"] = scriptPath;
+  env["GATEWAY_INTERFACE"] = "CGI/1.1";
+  env["SERVER_PROTOCOL"] = "HTTP/1.1";
+  env["REDIRECT_STATUS"] = "200";
+  // env["QUERYY_STRING"] = request.getQuery();
+}
+
+bool CGIExec::isValidScriptPath() const {
+  if (access(scriptPath.c_str(), F_OK) == -1) {
+    std::cerr << "Error: Script not found: " << scriptPath << std::endl;
+    return false;
+  }
+  if (access(scriptPath.c_str(), X_OK) == -1) {
+    std::cerr << "Error: Script is not executable: " << scriptPath << std::endl;
+    return false;
+  }
+  return true;
+}
+
+char **CGIExec::convertEnvToCharArray() {
+  char **result = new char *[env.size() + 1];
+  int i = 0;
+
+  for (std::map<std::string, std::string>::const_iterator it = env.begin();
+       it != env.end(); ++it) {
+    std::string entry = it->first + "=" + it->second;
+    result[i] = new char[entry.size() + 1];
+    std::cout << entry << std::endl;
+    std::strcpy(result[i], entry.c_str());
+    i++;
+  }
+  result[i] = NULL;
+
+  return result;
+}
+
+char **CGIExec::convertArgsToCharArray(const std::vector<std::string> &args) {
+  char **result = new char *[args.size() + 1];
+
+  for (size_t i = 0; i < args.size(); ++i) {
+    result[i] = new char[args[i].size() + 1];
+    std::strcpy(result[i], args[i].c_str());
+  }
+  result[args.size()] = NULL;
+
+  return result;
+}
+
+void CGIExec::freeCharArray(char **array) const {
+  if (array == NULL)
+    return;
+  int i = 0;
+  while (array[i]) {
+    delete[] array[i];
+    i++;
+  }
+  delete[] array;
 }
 
 int CGIExec::getPipeIn() const { return pipe_in[0]; }
-
 int CGIExec::getPipeOut() const { return pipe_out[1]; }
-
-bool CGIExec::getIsComplete() const { return isComplete; }
-
 pid_t CGIExec::getPid() const { return cgi_pid; }
-
-std::string CGIExec::getCGIOutput() const { return cgiOutput; }
-
 int CGIExec::getClientFd() const { return cgi_fd; }
 
-std::string CGIExec::getInterpreter(const std::string &extension) const {
-  if (extension == ".py")
-    return "/usr/bin/python3";
-  else if (extension == ".sh")
-    return "/usr/bin/bash";
-  return NULL;
-}
-
 int CGIExec::execute() {
+
+  if (!isValidScriptPath()) {
+    return -1;
+  }
+
   pid_t pid = fork();
   if (pid < 0) {
     perror("fork");
     return -1;
   }
   if (pid == 0) {
-    close(pipe_out[0]);
     close(pipe_in[1]);
 
     dup2(pipe_in[0], STDIN_FILENO);
-    dup2(pipe_out[1], STDOUT_FILENO);
+    dup2(cgi_fd, STDOUT_FILENO);
 
     close(pipe_in[0]);
-    close(pipe_out[1]);
-
-    std::vector<char *> envp;
-    for (std::map<std::string, std::string>::const_iterator it = env.begin();
-         it != env.end(); ++it) {
-      std::string envVar = it->first + "=" + it->second;
-      envp.push_back(const_cast<char *>(envVar.c_str()));
-    }
-    envp.push_back(NULL);
 
     std::vector<std::string> args;
-    std::string extension = scriptPath.substr(scriptPath.rfind('.'));
-    std::string interpreter = getInterpreter(extension);
-    args.push_back(interpreter);
     args.push_back(scriptPath);
 
-    std::vector<char *> cargs;
-    for (size_t i = 0; i < args.size(); ++i)
-      cargs.push_back(const_cast<char *>(args[i].c_str()));
-    cargs.push_back(NULL);
+    char **envp = convertEnvToCharArray();
+    char **cargs = convertArgsToCharArray(args);
 
-    // check access
-    if (access(cargs[1], X_OK) == -1) {
-      perror("Script not executable");
-      exit(EXIT_FAILURE);
-    }
-
-    execve(cargs[0], cargs.data(), envp.data());
-    perror("execve:");
+    execve(cargs[0], cargs, envp);
+    perror("execve");
+    freeCharArray(cargs);
+    freeCharArray(envp);
     exit(EXIT_FAILURE);
   }
   cgi_pid = pid;
   close(pipe_in[0]);
-  close(pipe_out[1]);
-
-  return pipe_out[0];
-}
-
-int CGIExec::readCGIOutput() {
-  char buffer[4096];
-  int bytes_read = read(pipe_out[0], buffer, sizeof(buffer));
-  if (bytes_read == -1) {
-    std::cerr << "Error reading data" << std::endl;
-    return -1;
-  }
-  if (bytes_read == 0) {
-    isComplete = true;
-    return -1;
-  }
-  cgiOutput.append(buffer, bytes_read);
-
+  close(pipe_in[1]);
+  // close(cgi_fd);
   return 0;
 }
