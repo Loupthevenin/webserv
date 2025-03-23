@@ -41,5 +41,19 @@
       <button onclick="sendDeleteRequest()">SEND</button>
       <p id="deleteResponse"></p>
     </div>
+
+    <div class="card">
+      <h2>Uploads</h2>
+      <form
+        action="/cgi-bin/upload.py"
+        method="POST"
+        enctype="multipart/form-data"
+      >
+        <label for="file">Sélectionner un fichier :</label>
+        <input type="file" id="file" name="file" required />
+        <br />
+        <input type="submit" value="Téléverser le fichier" />
+      </form>
+    </div>
   </body>
 </html>

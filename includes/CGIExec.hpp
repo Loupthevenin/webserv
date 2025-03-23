@@ -6,7 +6,7 @@
 /*   By: ltheveni <ltheveni@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/18 09:44:07 by ltheveni          #+#    #+#             */
-/*   Updated: 2025/03/22 18:22:41 by ltheveni         ###   ########.fr       */
+/*   Updated: 2025/03/23 16:17:10 by ltheveni         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,12 +31,12 @@ private:
   std::string scriptPath;
   std::map<std::string, std::string> env;
   int pipe_in[2];
-  int pipe_out[2];
   int cgi_fd;
   pid_t cgi_pid;
+	int httpErrorCode;
 
   void setupEnvironment(const HttpRequest &request);
-  bool isValidScriptPath() const;
+  bool isValidScriptPath();
   char **convertEnvToCharArray();
   char **convertArgsToCharArray(const std::vector<std::string> &args);
   void freeCharArray(char **array) const;
@@ -47,9 +47,9 @@ public:
   ~CGIExec();
 
   int getPipeIn() const;
-  int getPipeOut() const;
   pid_t getPid() const;
   int getClientFd() const;
+  int getHttpErrorCode() const;
 
   int execute();
 };

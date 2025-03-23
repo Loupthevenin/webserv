@@ -6,19 +6,17 @@
 /*   By: ltheveni <ltheveni@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/18 09:43:53 by ltheveni          #+#    #+#             */
-/*   Updated: 2025/03/23 13:28:58 by ltheveni         ###   ########.fr       */
+/*   Updated: 2025/03/23 17:09:15 by ltheveni         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/CGIExec.hpp"
-#include <sys/wait.h>
-#include <unistd.h>
 
-CGIExec::CGIExec() : scriptPath(""), cgi_fd(-1), cgi_pid(0) {}
+CGIExec::CGIExec() : scriptPath(""), cgi_fd(-1), cgi_pid(0), httpErrorCode(0) {}
 
 CGIExec::CGIExec(const std::string &script, const HttpRequest &request,
                  int client_fd)
-    : scriptPath(script), cgi_fd(client_fd), cgi_pid(0) {
+    : scriptPath(script), cgi_fd(client_fd), cgi_pid(0), httpErrorCode(0) {
   if (pipe(pipe_in) == -1) {
     std::cerr << "pipe: Error" << std::endl;
     return;
@@ -37,16 +35,18 @@ void CGIExec::setupEnvironment(const HttpRequest &request) {
   env["GATEWAY_INTERFACE"] = "CGI/1.1";
   env["SERVER_PROTOCOL"] = "HTTP/1.1";
   env["REDIRECT_STATUS"] = "200";
-  // env["QUERYY_STRING"] = request.getQuery();
+  env["QUERY_STRING"] = request.getQuery();
 }
 
-bool CGIExec::isValidScriptPath() const {
+bool CGIExec::isValidScriptPath() {
   if (access(scriptPath.c_str(), F_OK) == -1) {
     std::cerr << "Error: Script not found: " << scriptPath << std::endl;
+	httpErrorCode = 404;
     return false;
   }
   if (access(scriptPath.c_str(), X_OK) == -1) {
     std::cerr << "Error: Script is not executable: " << scriptPath << std::endl;
+	httpErrorCode = 403;
     return false;
   }
   return true;
@@ -60,7 +60,6 @@ char **CGIExec::convertEnvToCharArray() {
        it != env.end(); ++it) {
     std::string entry = it->first + "=" + it->second;
     result[i] = new char[entry.size() + 1];
-    std::cout << entry << std::endl;
     std::strcpy(result[i], entry.c_str());
     i++;
   }
@@ -93,19 +92,24 @@ void CGIExec::freeCharArray(char **array) const {
 }
 
 int CGIExec::getPipeIn() const { return pipe_in[0]; }
-int CGIExec::getPipeOut() const { return pipe_out[1]; }
 pid_t CGIExec::getPid() const { return cgi_pid; }
 int CGIExec::getClientFd() const { return cgi_fd; }
+int CGIExec::getHttpErrorCode() const { return httpErrorCode; }
 
 int CGIExec::execute() {
 
   if (!isValidScriptPath()) {
+	close(pipe_in[0]);
+	close(pipe_in[1]);
     return -1;
   }
 
   pid_t pid = fork();
   if (pid < 0) {
     perror("fork");
+	httpErrorCode = 500;
+	close(pipe_in[0]);
+	close(pipe_in[1]);
     return -1;
   }
   if (pid == 0) {
@@ -131,6 +135,8 @@ int CGIExec::execute() {
   cgi_pid = pid;
   close(pipe_in[0]);
   close(pipe_in[1]);
-  // close(cgi_fd);
+	int status;
+	waitpid(cgi_pid, &status, WNOHANG);
+  close(cgi_fd);
   return 0;
 }

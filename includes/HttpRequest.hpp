@@ -6,7 +6,7 @@
 /*   By: ltheveni <ltheveni@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/11 15:24:13 by ltheveni          #+#    #+#             */
-/*   Updated: 2025/03/15 11:38:03 by ltheveni         ###   ########.fr       */
+/*   Updated: 2025/03/23 17:09:44 by ltheveni         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,8 @@ private:
 	int contentLength;
 	bool bodyFullyRead;
 	bool headerComplete;
+	std::string queryString;
+
 public:
 	HttpRequest();
 	~HttpRequest();
@@ -42,6 +44,7 @@ public:
 	std::string getBody() const;
 	int getContentLength() const;
 	std::string getHost() const;
+	std::string getQuery() const;
 
 	bool isHeaderComplete() const;
 	bool hasCompleteHeaders();
