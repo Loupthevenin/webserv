@@ -6,10 +6,10 @@
 /*   By: opdibia <opdibia@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/11 16:09:00 by ltheveni          #+#    #+#             */
-/*   Updated: 2025/03/19 19:21:06 by ltheveni         ###   ########.fr       */
-/*   Updated: 2025/03/15 12:45:03 by ltheveni         ###   ########.fr       */
+/*   Updated: 2025/03/23 01:10:17 by opdibia          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+
 
 #include "../../includes/webserv.h"
 
@@ -19,51 +19,16 @@ void handleMethod(int fd, Epoll &epoll, HttpRequest &request,
 
   HttpResponse response;
 
-  // GET POST DELETE A GERER ICI;
-  (void)serverConfig;
   if (request.getMethod() == "GET") {
-    // handleGet(request, &response, serverConfig);
-    std::string filePath;
-
-    if ("/methods/GET.html" == request.getUri()) {
-      filePath = "www/methods/GET.html";
-      response.setHeader("Content-Type", "text/html");
-    } else if ("/script.js" == request.getUri()) {
-      filePath = "www/script.js";
-      response.setHeader("Content-Type", "application/javascript");
-    } else if ("/styles.css" == request.getUri()) {
-      filePath = "www/styles.css";
-      response.setHeader("Content-Type", "text/css");
-    } else if ("/methods/files" == request.getUri()) {
-      std::string body = listFilesInDirectory("www/methods/delete");
-      response.setStatus(200);
-      response.setHeader("Content-Type", "application/json");
-      response.setBody(body);
-    } else if ("/cgi/cgi.sh" == request.getUri()) {
-      CGIExec cgi("www/cgi/cgi.sh", request, fd);
-      int pipe_fd = cgi.execute();
-      if (pipe_fd == -1) {
-        // error;
-      }
-		setFdNonBlocking(pipe_fd);
-      epoll.addCGIProcess(pipe_fd, cgi);
-      return;
-    } else {
-      filePath = "www/index.html";
-      response.setHeader("Content-Type", "text/html");
-    }
-
-    if (!filePath.empty()) {
-      std::string body = readFile(filePath);
-      response.setStatus(200);
-      response.setBody(body);
-    }
+		if(handleGet(request, response, serverConfig, fd, epoll) == 1)
+            return;
   } else if (request.getMethod() == "POST") {
-    // heandlePost();
+    // handlePost();
   } else if (request.getMethod() == "DELETE") {
     // handleDelete();
     std::cout << "DELETE FILES" << std::endl;
   }
+	// std::cout << "status = " << response.getStatus() << " body = " << response.getBody() << std::endl;
   std::string message = response.toString();
   send(fd, message.c_str(), message.size(), 0);
   close(fd);
@@ -90,16 +55,43 @@ int readClientData(int fd, Epoll &epoll, std::map<int, HttpRequest> &requests,
   return bytes_read;
 }
 
-Server *findServerConfig(HttpRequest &request, ConfigParser &conf) {
-  std::string client_host = request.getHost();
+Server* findServerConfig(HttpRequest& request, ConfigParser& conf) {
+    std::string client_host_raw = request.getHost(); 
+    std::string client_host;
+    int client_port = 8080;
 
-  for (size_t i = 0; i < conf.servers.size(); i++) {
-    std::string server_host = conf.servers[i].get_server_name();
-    if (server_host == client_host)
-      return &conf.servers[i];
-  }
-  return NULL;
+
+    size_t colon = client_host_raw.find(':');
+    if (colon != std::string::npos) {
+        client_host = client_host_raw.substr(0, colon);
+        std::string port_str = client_host_raw.substr(colon + 1);
+        std::istringstream iss(port_str);
+        iss >> client_port;
+        if (iss.fail()) {
+            std::cerr << "[ERROR] Invalid port in Host header: " << port_str << std::endl;
+            return (NULL);
+        }
+    } else {
+        client_host = client_host_raw;
+    }
+    Server* default_server = NULL;
+
+    for (size_t i = 0; i < conf.servers.size(); i++) {
+        Server& srv = conf.servers[i];
+
+        std::string server_host = srv.get_server_name();  
+        int server_port = srv.get_port();     
+        if (server_port == client_port) {
+            if (server_host == client_host)
+                return &conf.servers[i];
+
+            if (default_server == NULL)
+                default_server = &conf.servers[i];
+        }
+    }
+    return (default_server);
 }
+
 
 void handleRequest(int fd, Epoll &epoll, ConfigParser &conf) {
   static std::map<int, HttpRequest> requests;

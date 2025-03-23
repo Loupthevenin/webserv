@@ -6,7 +6,7 @@
 /*   By: opdibia <opdibia@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/09 12:17:37 by ltheveni          #+#    #+#             */
-/*   Updated: 2025/03/16 01:09:12 by opdibia          ###   ########.fr       */
+/*   Updated: 2025/03/23 00:56:21 by opdibia          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,7 @@ void ConfigParser::parseConfig() {
     getline(_infile, value);
     if (!value.empty() && value[0] == ' ')
       value.erase(0, 1);  
-    std::size_t found = value.find("{");
+    std::size_t found = value.find(" {");
     if (found!=std::string::npos)
       value.erase(found);
     found = value.find(";");
@@ -70,7 +70,8 @@ void ConfigParser::parseConfig() {
         currentServer.set_Location(currentLocationPath, currentLocation);
         currentLocation = Location();
       }
-      currentLocationPath = value;      
+      currentLocationPath = value;     
+      currentLocation.setValue("nameLoc", value); 
     }
     else if(!currentLocationPath.empty())
       currentLocation.setValue(key, value);
@@ -128,16 +129,19 @@ void ConfigParser::check_isNameServer(Server &currentServer)
 }
 
 void  ConfigParser::set_errorPage(Server &currentServer, std::string value){
-  int found; 
+  std::size_t found; 
   std::string num_error;
   
-  found = value.find("/", 0);
-  num_error.assign(value, 0, found - 1);
-  value.erase(0, found);
+  found = value.find(" ", 0);
+  if (found == std::string::npos)
+        throw WrongValueExeption("location : missing URI in error_page" + value);
+  num_error = value.substr(0, found);           
+  value = value.substr(found + 1);
   if(!isNum(num_error) || !is_errorNum(num_error))
     throw WrongValueExeption("invalid num error_page " + num_error);
   currentServer.set_mapValue(num_error, value);
 }
+
 
 void ConfigParser::check_listen(Server &currentServer, std::string value) {
   std::string ip;

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   utils_handleRequest.cpp                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ltheveni <ltheveni@student.42.fr>          +#+  +:+       +#+        */
+/*   By: opdibia <opdibia@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/14 14:57:19 by ltheveni          #+#    #+#             */
-/*   Updated: 2025/03/18 20:42:41 by ltheveni         ###   ########.fr       */
+/*   Updated: 2025/03/23 00:36:16 by opdibia          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,4 +79,110 @@ void setFdNonBlocking(int fd) {
     perror("fcntl(O_NONBLOCK) failed");
     return;
   }
+}
+
+
+bool    body_size(HttpRequest &request, Location location){
+    if(location.get_body_client() != 0)
+    {
+        size_t maxBodySize = location.get_body_client();
+        if (request.getBody().size() > maxBodySize) {
+            return(false);
+        }
+    }
+    return(true);
+}
+
+
+int     check_file(std::string& filePath){
+    struct stat s;
+	if (stat(filePath.c_str(), &s) != 0)
+		return (404);
+    if (S_ISDIR(s.st_mode))
+        return (403);
+    if (access(filePath.c_str(), R_OK) != 0)
+        return (403);
+    std::ifstream file(filePath.c_str(), std::ios::in | std::ios::binary);
+    if (!file.is_open())
+        return (500);
+    file.close();
+    return(200);
+}
+
+std::string buildErrorResponse(int code) {
+    std::ostringstream oss;
+    oss << "HTTP/1.1 " << code << " ";
+
+    switch (code) {
+        case 403: oss << "Forbidden"; break;
+        case 404: oss << "Not Found"; break;
+        case 405: oss << "Method not allowed"; break;
+        case 413: oss << "Payload Too Large"; break;
+        default:  oss << "Error"; break;
+    }
+
+    std::string body = "<html><body><h1>" + oss.str() + "</h1></body></html>";
+    oss << body;
+    return (oss.str());
+}
+
+std::string check_error_server(int code, Server &serverConf){
+    std::ostringstream oss;
+    oss << code; 
+    std::string c_error = oss.str();
+    std::string err_page = serverConf.get_error_page(c_error);
+    if(!err_page.empty())
+        return(err_page);
+    return("");
+}
+
+std::string set_autoindex(const std::string& filePath){
+    std::ostringstream html;
+    struct dirent* entry;
+    DIR* dir = opendir(filePath.c_str());
+    
+    if (!dir) {
+        std::cerr << "[ERROR] Impossible d'ouvrir le dossier : " << filePath << std::endl;
+        return ("");
+    }
+    html << "<html><head><title>Index of " << filePath << "</title></head><body>";
+    html << "<h1>Index of " << filePath << "</h1><ul>";
+    while ((entry = readdir(dir)) != NULL) {
+        std::string name = entry->d_name;
+		if (name == "." || name == "..")
+            continue;
+        std::string link = filePath;
+        if (!link.empty() && link[link.size() - 1] != '/')
+            link += '/';
+        link += name;
+        std::string fullPath = filePath + "/" + name;
+        struct stat st;
+        if (stat(fullPath.c_str(), &st) == 0 && S_ISDIR(st.st_mode))
+            link += '/';
+        html << "<li><a href=\"" << link << "\">" << name << "</a></li>";
+    }
+    closedir(dir);
+    html << "</ul></body></html>";
+    return (html.str());
+}
+
+
+std::string  check_header(std::string uri){
+    std::map<std::string, std::string> c_type;
+    c_type[".html"] = "text/html";
+    c_type[".js"]   = "application/javascript";
+    c_type[".css"]  = "text/css";
+    c_type[".json"] = "application/json";
+    c_type[".sh"] = "cgi";
+    std::size_t found = uri.find_last_of(".");
+    std::string extension = "";
+    
+    if (found!=std::string::npos)
+    {
+        extension = uri.substr(found);
+        if(!c_type[extension].empty())
+            return("application/octet-stream");
+        return(c_type[extension]);  
+    }
+    return(extension);
 }

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HttpResponse.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ltheveni <ltheveni@student.42.fr>          +#+  +:+       +#+        */
+/*   By: opdibia <opdibia@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/13 10:03:11 by ltheveni          #+#    #+#             */
-/*   Updated: 2025/03/13 10:25:07 by ltheveni         ###   ########.fr       */
+/*   Updated: 2025/03/23 01:07:31 by opdibia          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,14 @@ std::string HttpResponse::getStatusMessage(int code) const{
 		case 501: return "Not Implemented";
 		default: return "Unknown";
 	}
+}
+
+int HttpResponse::getStatus() {
+	return(statusCode);
+}
+
+std::string HttpResponse::getBody() {
+	return(body);
 }
 
 void HttpResponse::setStatus(int code) {

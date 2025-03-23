@@ -6,7 +6,7 @@
 /*   By: opdibia <opdibia@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/12 11:06:50 by opdibia           #+#    #+#             */
-/*   Updated: 2025/03/16 01:12:04 by opdibia          ###   ########.fr       */
+/*   Updated: 2025/03/23 01:00:18 by opdibia          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,6 +78,14 @@ AnyValue Location::getValue(const std::string &key) const {
         return(it->second);
     else
         return AnyValue();
+}
+
+std::string Location::get_nameLoc() const{
+    std::map<std::string, AnyValue>::const_iterator it = _map_location.find("nameLoc");
+    if (it != _map_location.end()) 
+        return (it->second.getString());
+    else
+        return ("");
 }
 
 size_t Location::get_body_client() const{
@@ -160,10 +168,25 @@ std::string Location::get_cgi_path() const{
         return ("");
 }
 
+bool    Location::is_emptyMethods(){
+    if(_method[0].empty() && _method[1].empty() && _method[2].empty())
+        return(true);
+    return(false);
+}
+
+bool    Location::is_method(std::string str){
+    for(int i = 0; i < 3; i++)
+    {
+        if(_method[i] == str)
+            return(true);
+    }
+    return(false);
+}
+
 void Location::check_value(const std::string &key, const AnyValue&value){
     if(value.isEmpty())
         throw WrongValueExeption("location : empty key : " + key);
-    else if(key == "allowed__methods")
+    else if(key == "allow_methods")
         setMethod(value.getString());
     else if(key == "autoindex")
         check_autoindex(value.getString());
@@ -177,6 +200,10 @@ void Location::check_value(const std::string &key, const AnyValue&value){
         check_cgi_ext(value.getString());
     else if(key == "cgi_enable")
         check_cgi_enable(value.getString());
+    else if (key == "root" && !get_alias().empty())
+        throw WrongValueExeption("location : Invalid config: 'root' and 'alias' cannot be used together.");
+     else if (key == "alias" && !get_root().empty())
+        throw WrongValueExeption("location : Invalid config: 'root' and 'alias' cannot be used together."); 
 }
 
 void Location::check_allowMethod(std::string value) {
@@ -243,24 +270,28 @@ void Location::check_body_size(std::string value)
 }
 
 void  Location::check_errorPage(std::string value){
-  int found; 
+  std::size_t found; 
   std::string num_error;
   
-  found = value.find("/", 0);
-  num_error.assign(value, 0, found - 1);
-  value.erase(0, found);
+  found = value.find(" ", 0);
+  if (found == std::string::npos)
+        throw WrongValueExeption("location : missing URI in error_page" + value);
+  num_error = value.substr(0, found);           
+  value = value.substr(found + 1); 
   if(!isNum(num_error) || !is_errorNum(num_error))
     throw WrongValueExeption("location : invalid num error_page " + num_error);
   _map_location[num_error] = value;
 }
 
 void  Location::check_return(std::string value){
-  int found; 
+  std::size_t found; 
   std::string num_error;
   
-  found = value.find("/", 0);
-  num_error.assign(value, 0, found - 1);
-  value.erase(0, found);
+  found = value.find(" ", 0);
+  if (found == std::string::npos)
+        throw WrongValueExeption("location : missing URI in return " + value);
+  num_error = value.substr(0, found);           
+  value = value.substr(found + 1); 
   if(!isNum(num_error) || !is_returnNum(num_error))
     throw WrongValueExeption("location : invalid num return " + num_error);
   _map_location[num_error] = value;

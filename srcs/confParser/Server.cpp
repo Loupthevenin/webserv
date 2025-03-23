@@ -6,7 +6,7 @@
 /*   By: opdibia <opdibia@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/11 18:01:04 by opdi-bia          #+#    #+#             */
-/*   Updated: 2025/03/16 01:08:02 by opdibia          ###   ########.fr       */
+/*   Updated: 2025/03/23 00:45:32 by opdibia          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,8 @@ Server& Server::operator=(const Server& other) {
 Server::~Server() {}
 
 void Server::set_Location(const std::string &path, const Location &location) {
+    if (path[0] != '/')
+        throw WrongValueExeption("invalid location " + path);
     _locations[path] = location;
 }
 
@@ -131,6 +133,14 @@ std::string Server::get_autoindex(){
         return ("");
 }
   
+bool    Server::is_method(std::string str){
+    for(int i = 0; i < 3; i++)
+    {
+        if(_method[i] == str)
+            return(true);
+    }
+    return(false);
+}
 // void Server::display() const
 // {
 //     std::cout << "----- Server Config -----" << std::endl;
