@@ -6,7 +6,7 @@
 /*   By: opdibia <opdibia@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/09 11:08:41 by ltheveni          #+#    #+#             */
-/*   Updated: 2025/03/23 15:13:52 by ltheveni         ###   ########.fr       */
+/*   Updated: 2025/03/24 15:49:47 by ltheveni         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,10 +22,15 @@ static void initializeServer(Socket &serverSocket, Epoll &epoll, int port) {
 }
 
 static void handleNewConnection(Socket &serverSocket, Epoll &epoll) {
-
   int client_fd = serverSocket.acceptConnection();
   std::cout << "Connexion accept !" << std::endl;
   serverSocket.setSocketNonBlocking(client_fd);
+
+	std::string client_ip = serverSocket.getClientIp(client_fd);
+	int client_port = serverSocket.getClientPort(client_fd);
+	if (!client_ip.empty() || client_port != -1)
+		logConnexion(client_ip, client_port);
+
   epoll.addFd(client_fd, EPOLLIN);
 }
 
@@ -56,7 +61,7 @@ static void eventLoop(Epoll &epoll, std::vector<Socket> &serverSockets,
 
 int main(int argc, char **argv) {
   if (argc != 2) {
-    std::cerr << "Error ./webserv *.conf" << std::endl;
+	logError("./webserv *.conf");
     return (-1);
   }
   signal(SIGINT, signalHandler);
@@ -78,7 +83,7 @@ int main(int argc, char **argv) {
     }
     eventLoop(epoll, serverSockets, conf);
   } catch (std::exception &e) {
-    std::cerr << e.what() << '\n';
+	logError(e.what());
     return (-1);
   }
   return EXIT_SUCCESS;

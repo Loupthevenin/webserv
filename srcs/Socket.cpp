@@ -6,12 +6,13 @@
 /*   By: ltheveni <ltheveni@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/09 12:25:20 by ltheveni          #+#    #+#             */
-/*   Updated: 2025/03/13 19:44:06 by ltheveni         ###   ########.fr       */
+/*   Updated: 2025/03/24 15:44:18 by ltheveni         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/Socket.hpp"
 #include <cstdlib>
+#include <netinet/in.h>
 #include <sys/socket.h>
 
 Socket::Socket() {
@@ -78,3 +79,33 @@ int Socket::acceptConnection() {
 }
 
 int Socket::getFd() const { return socket_fd; }
+
+std::string Socket::getClientIp(int client_fd) {
+	struct sockaddr_in client_address;
+	socklen_t client_len = sizeof(client_address);
+
+	if (getpeername(client_fd, (struct sockaddr *)&client_address, &client_len) == -1) {
+		perror("getpeername");
+		return "";
+	}
+
+	char client_ip[INET_ADDRSTRLEN];
+	if (inet_ntop(AF_INET, &client_address.sin_addr, client_ip, sizeof(client_ip)) == NULL)
+	{
+		perror("inet_ntop");
+		return "";
+	}
+
+	return std::string(client_ip);
+}
+
+int Socket::getClientPort(int client_fd) {
+	struct sockaddr_in client_address;
+	socklen_t client_len = sizeof(client_address);
+	if (getpeername(client_fd, (struct sockaddr *)&client_address, &client_len) == -1) {
+        perror("getpeername");
+		return -1;
+    }
+
+    return ntohs(client_address.sin_port);
+}

@@ -6,7 +6,7 @@
 /*   By: opdibia <opdibia@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/11 12:15:33 by ltheveni          #+#    #+#             */
-/*   Updated: 2025/03/23 08:53:24 by ltheveni         ###   ########.fr       */
+/*   Updated: 2025/03/24 15:22:31 by ltheveni         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@
 # include "HttpRequest.hpp"
 # include "HttpResponse.hpp"
 # include "Socket.hpp"
+# include "log.hpp"
 # include "signal.hpp"
 # include <cerrno>
 # include <cstddef>
