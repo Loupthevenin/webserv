@@ -6,7 +6,7 @@
 /*   By: ltheveni <ltheveni@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/18 09:44:07 by ltheveni          #+#    #+#             */
-/*   Updated: 2025/03/23 16:17:10 by ltheveni         ###   ########.fr       */
+/*   Updated: 2025/03/24 14:37:03 by ltheveni         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,7 @@ private:
   int pipe_in[2];
   int cgi_fd;
   pid_t cgi_pid;
-	int httpErrorCode;
+  int httpErrorCode;
 
   void setupEnvironment(const HttpRequest &request);
   bool isValidScriptPath();
@@ -51,5 +51,5 @@ public:
   int getClientFd() const;
   int getHttpErrorCode() const;
 
-  int execute();
+  int execute(std::string body);
 };
