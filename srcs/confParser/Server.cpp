@@ -6,7 +6,7 @@
 /*   By: opdibia <opdibia@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/11 18:01:04 by opdi-bia          #+#    #+#             */
-/*   Updated: 2025/03/23 00:45:32 by opdibia          ###   ########.fr       */
+/*   Updated: 2025/03/24 16:26:43 by opdibia          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -141,6 +141,7 @@ bool    Server::is_method(std::string str){
     }
     return(false);
 }
+
 // void Server::display() const
 // {
 //     std::cout << "----- Server Config -----" << std::endl;

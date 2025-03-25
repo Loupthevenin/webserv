@@ -6,10 +6,10 @@
 /*   By: opdibia <opdibia@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/11 16:09:00 by ltheveni          #+#    #+#             */
-/*   Updated: 2025/03/24 16:00:50 by ltheveni         ###   ########.fr       */
-/*   Updated: 2025/03/22 14:29:43 by ltheveni         ###   ########.fr       */
-/*   Updated: 2025/03/15 12:45:03 by ltheveni         ###   ########.fr       */
+/*   Updated: 2025/03/25 20:01:41 by opdibia          ###   ########.fr       */
 /*                                                                            */
+/* ************************************************************************** */
+
 /* ************************************************************************** */
 
 #include "../../includes/webserv.h"
@@ -36,8 +36,8 @@ void handleMethod(int fd, HttpRequest &request, Server &serverConfig) {
     // handleDelete();
 	logInfo("HTTP", "Request DELETE", _CYAN);
   }
-  // std::cout << "status = " << response.getStatus() << " body = " <<
-  // response.getBody() << std::endl;
+  std::cout << "status = " << response.getStatus() << " body = " <<
+  response.getBody() << std::endl;
   std::string message = response.toString();
   send(fd, message.c_str(), message.size(), 0);
   close(fd);

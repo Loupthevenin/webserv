@@ -6,7 +6,7 @@
 /*   By: opdibia <opdibia@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/11 12:15:33 by ltheveni          #+#    #+#             */
-/*   Updated: 2025/03/24 15:22:31 by ltheveni         ###   ########.fr       */
+/*   Updated: 2025/03/25 18:34:11 by opdibia          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,7 +50,10 @@ std::string buildErrorResponse(int code);
 std::string check_error_server(int code, Server &serverConf);
 std::string set_autoindex(const std::string &filePath);
 std::string check_header(std::string uri);
-
+bool  try_exec_cgi(Location &location, Server &serverConfig,
+	HttpRequest &request, HttpResponse &response, int fd, std::string filePath );
+bool  try_exec_cgi_serv(Server &serverConfig,
+		HttpRequest &request, HttpResponse &response, int fd, std::string filePath );
 // Utils ConfigParser
 bool	is_returnNum(const std::string &str);
 bool	is_errorNum(const std::string &str);
