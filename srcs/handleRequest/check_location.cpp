@@ -6,7 +6,7 @@
 /*   By: opdibia <opdibia@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/21 16:51:49 by opdibia           #+#    #+#             */
-/*   Updated: 2025/03/24 14:39:15 by ltheveni         ###   ########.fr       */
+/*   Updated: 2025/03/25 20:56:43 by opdibia          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,8 +86,17 @@ static std::string check_root(Server &serverConfig, Location &location,
   return (file);
 }
 
-static void set_error(Server &serverConfig, HttpResponse &response,
-                      Location &location, int code) {
+static std::string join_path(std::string &base, std::string &path) {
+  if (base[base.size() - 1] == '/' && path[0] == '/')
+    base.erase((base.size() - 1), 1);
+  else if (base[base.size() - 1] != '/' && path[0] != '/')
+    base += '/';
+  path = base + path;
+  return (path);
+}
+
+static int set_error(Server &serverConfig, HttpResponse &response,
+                      Location &location, int code, HttpRequest &request, int fd) {
   response.setStatus(code);
   std::string errorFileLoc = check_error_loc(code, location);
   std::string errorFileServ = check_error_server(code, serverConfig);
@@ -95,42 +104,68 @@ static void set_error(Server &serverConfig, HttpResponse &response,
   if (!errorFileLoc.empty()) {
     std::string root = location.get_root();
     if (!root.empty()) {
-      if (root[root.size() - 1] == '/' && errorFileLoc[0] == '/')
-        root.erase(root.size() - 1, 1);
-      else if (root[root.size() - 1] != '/' && errorFileLoc[0] != '/')
-        root += '/';
-      errorFileLoc = root + errorFileLoc;
+      join_path(root, errorFileLoc);
     }
-    if (check_file(errorFileLoc) == 200)
+    if (check_file(errorFileLoc) == 200){
       response.setBody(readFile(errorFileLoc));
+      response.setHeader("Content-Type", check_header(errorFileLoc));
+      if(try_exec_cgi(location,serverConfig, request, response, fd, errorFileLoc))
+        return(1);
+    }
   } else if (!errorFileServ.empty()) {
     std::string root = serverConfig.get_root();
     if (!root.empty()) {
-      if (root[root.size() - 1] == '/' && errorFileServ[0] == '/')
-        root.erase(root.size() - 1, 1);
-      else if (root[root.size() - 1] != '/' && errorFileServ[0] != '/')
-        root += '/';
-      errorFileServ = root + errorFileServ;
+      join_path(root, errorFileServ);
     }
-    if (check_file(errorFileServ) == 200)
+    if (check_file(errorFileServ) == 200){
       response.setBody(readFile(errorFileServ));
+      response.setHeader("Content-Type", check_header(errorFileServ));
+      if(try_exec_cgi(location,serverConfig, request, response, fd, errorFileServ))
+        return(1);
+    }
   } else
+  {
+    response.setHeader("Content-Type", "text/html");
     response.setBody(buildErrorResponse(code));
-  return;
+  }
+  return(0);
 }
 
-static void set_response(Server &server, HttpResponse &response,
-                         Location &location, std::string &filePath) {
-  std::string extension = check_header(filePath); // verif si extension = "" ?
-  response.setHeader("Content_type", extension);
+
+bool  try_exec_cgi(Location &location, Server &serverConfig,
+  HttpRequest &request, HttpResponse &response, int fd, std::string filePath ){
+  if (check_header(filePath) == "cgi") {
+    if(!location.get_cgi_enable().empty() && location.get_cgi_enable() == "on")
+    {
+      CGIExec cgi(filePath, request, fd);
+      if (cgi.execute(request.getBody()) == -1) {
+          // leaks !!!!! + no response;
+          int error_code = cgi.getHttpErrorCode();
+          response.setHeader("Content-Type", "text/html");
+          if(set_error(serverConfig, response, location, error_code, request, fd) == 1)
+            return(true);
+        }
+        return (true);
+    }
+    return(false);
+  }
+  return(false);
+}
+
+static int set_response(Server &server, HttpResponse &response,
+                         Location &location, std::string &filePath, HttpRequest &request, int fd) {
+  std::string extension = check_header(filePath); 
   int code_return = check_file(filePath);
   if (code_return != 200) {
-    set_error(server, response, location, code_return);
-    return;
+    if(set_error(server, response, location, code_return, request, fd) == 1)
+      return(1);
+    return(0);
   }
+  response.setHeader("Content-Type", extension);
   std::string body = readFile(filePath);
   response.setStatus(200);
   response.setBody(body);
+  return(0);
 }
 
 static std::string set_filePath(Location &location, std::string locName,
@@ -155,15 +190,17 @@ int check_location(Location &location, Server &serverConfig,
   std::string filePath;
 
   if (!location.is_method("GET") && !serverConfig.is_method("GET")) {
-    std::string extension = check_header(filePath); // verif si extension = "" ?
-    response.setHeader("Content_type", extension);
-    set_error(serverConfig, response, location, 405);
+    std::string extension = check_header(filePath); 
+    response.setHeader("Content-Type", extension);
+    if(set_error(serverConfig, response, location, 405, request, fd) == 1)
+      return(1);
     return (0);
   }
   if (body_size(request, location) == false) {
-    std::string extension = check_header(filePath); // verif si extension = "" ?
-    response.setHeader("Content_type", extension);
-    set_error(serverConfig, response, location, 413);
+    std::string extension = check_header(filePath); 
+    response.setHeader("Content-Type", extension);
+    if(set_error(serverConfig, response, location, 413, request, fd) == 1)
+      return(1);
     return (0);
   }
   if (!is_return(location).empty()) {
@@ -172,24 +209,15 @@ int check_location(Location &location, Server &serverConfig,
     iss >> code;
     filePath = location.get_return(is_return(location));
     response.setStatus(code);
+    if(try_exec_cgi(location,serverConfig, request, response, fd, filePath))
+      return(1);
     std::string header = check_header(filePath);
-    response.setHeader("Content_type", header);
+    response.setHeader("Content-Type", header);
     response.setBody(buildReturnResponse(code, filePath));
     return (0);
   }
   filePath =
       set_filePath(location, location.get_nameLoc(), serverConfig, request);
-  if (check_header(filePath) == "cgi") {
-    CGIExec cgi(filePath, request, fd);
-    if (cgi.execute(request.getBody()) == -1) {
-      // leaks !!!!! + no response;
-      int error_code = cgi.getHttpErrorCode();
-      response.setHeader("Content_type", "text/html");
-      set_error(serverConfig, response, location, error_code);
-      return (0);
-    }
-    return (1);
-  }
   if (filePath[filePath.size() - 1] == '/') {
     if (!location.get_index().empty())
       filePath = filePath + location.get_index();
@@ -200,7 +228,8 @@ int check_location(Location &location, Server &serverConfig,
           location.get_autoindex() == "on") {
         std::string body = set_autoindex(filePath);
         if (body.empty()) {
-          set_error(serverConfig, response, location, 403);
+          if(set_error(serverConfig, response, location, 403, request, fd) == 1)
+            return(1);
           return (0);
         }
         response.setStatus(200);
@@ -208,13 +237,17 @@ int check_location(Location &location, Server &serverConfig,
         return (0);
       } else {
         std::string extension =
-            check_header(filePath); // verif si extension = "" ?
-        response.setHeader("Content_type", extension);
-        set_error(serverConfig, response, location, 404);
+            check_header(filePath);
+        response.setHeader("Content-Type", extension);
+        if(set_error(serverConfig, response, location, 404, request, fd) == 1)
+          return(1);
         return (0);
       }
     }
   }
-  set_response(serverConfig, response, location, filePath);
+  if(try_exec_cgi(location,serverConfig, request, response, fd, filePath))
+    return(1);
+  if(set_response(serverConfig, response, location, filePath, request, fd) == 1)
+    return(1);
   return (0);
 }

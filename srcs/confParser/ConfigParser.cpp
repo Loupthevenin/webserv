@@ -6,7 +6,7 @@
 /*   By: opdibia <opdibia@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/09 12:17:37 by ltheveni          #+#    #+#             */
-/*   Updated: 2025/03/23 00:56:21 by opdibia          ###   ########.fr       */
+/*   Updated: 2025/03/24 17:11:26 by opdibia          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,33 @@ ConfigParser::~ConfigParser() {
   _infile.close();
 }
 
+// std::string parse_value(std::string value){
+//   if (!value.empty() && value[0] == ' ')
+//     value.erase(0, 1);  
+//   std::cout << "value icicicicici = "<< value << std::endl;
+//   std::size_t found = value.find("{");
+//   if (found!=std::string::npos)
+//     value.erase(found);
+//   std::cout << "value lalalalalla = "<< value << std::endl;
+//   found = value.find(";");
+//   if (found!=std::string::npos)
+//     value.erase(found);
+// }
+
+std::string parse_value(const std::string &raw) {
+  std::string value = raw;
+
+  value.erase(0, value.find_first_not_of(" \t"));
+  value.erase(value.find_last_not_of(" \t") + 1);
+
+  size_t stop = value.find_first_of("{;#");
+  if (stop != std::string::npos) {
+      value = value.substr(0, stop);
+      value.erase(value.find_last_not_of(" \t") + 1);
+  }
+  return value;
+}
+
 void ConfigParser::parseConfig() {
   std::string buffer;
   std::string value;
@@ -36,18 +63,11 @@ void ConfigParser::parseConfig() {
   Server currentServer;
   Location currentLocation;
   std::string currentLocationPath = "";
-  
+
   while(_infile >> key)
   {
     getline(_infile, value);
-    if (!value.empty() && value[0] == ' ')
-      value.erase(0, 1);  
-    std::size_t found = value.find(" {");
-    if (found!=std::string::npos)
-      value.erase(found);
-    found = value.find(";");
-    if (found!=std::string::npos)
-      value.erase(found);
+    value = parse_value(value);
     if(key == "server")
     {
       if(!currentServer.get_mapValue("listen").isEmpty())
