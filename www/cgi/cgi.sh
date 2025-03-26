@@ -9,7 +9,7 @@ if [ "$REQUEST_METHOD" = "POST" ]; then
 fi
 
 BODY="<html>
-<head><title>CGI Bash</title></head>
+<head><meta charset='UTF-8'><title>CGI Bash</title></head>
 <body>
 <h1>Hello, CGI World!</h1>
 <p>Ce script fonctionne via CGI en HTTP/1.1 !</p>
@@ -24,8 +24,9 @@ BODY+="</body>
 
 CONTENT_LENGTH=${#BODY}
 
-echo -e "HTTP/1.1 200 OK\r\n"
-# echo -e "Content-Type: text/html; charset=utf-8\r\n"
+echo -e "HTTP/1.1 200 OK\r"
+echo -e "Content-type: text/html; charset=UTF-8\r"
+echo -e "\r"
 # echo -e "Content-Length: $CONTENT_LENGTH\r\n"
 # echo -e "Connection: close\r\n"
 # echo -e "\r\n"

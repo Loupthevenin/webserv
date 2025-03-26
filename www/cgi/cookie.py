@@ -4,7 +4,7 @@ import cgi
 import os
 import http.cookies
 import uuid
-import time
+# import time
 
 sessions = {}
 
@@ -13,12 +13,10 @@ def get_session_id():
     cookie = http.cookies.SimpleCookie(os.environ.get("HTTP_COOKIE", ""))
     session_id_cookie = cookie.get("session_id")
 
-    if session_id_cookie is None or session_id_cookie not in sessions:
-        session_id = str(uuid.uuid4())
-        sessions[session_id] = {"visits": 0, "created_at": time.time()}
-        return session_id
-    else:
+    if session_id_cookie and session_id_cookie.value in sessions:
         return session_id_cookie.value
+    else:
+        return None
 
 
 def set_session_cookie(session_id):
@@ -28,15 +26,36 @@ def set_session_cookie(session_id):
     print(cookie)
 
 
+def delete_session_cookie():
+    cookie = http.cookies.SimpleCookie()
+    cookie["session_id"] = ""
+    cookie["session_id"]["path"] = "/"
+    print(cookie)
+
+
+print("HTTP/1.1 200 OK")
 print("Content-type: text/html")
 print()
 
-session_id = get_session_id()
+form = cgi.FieldStorage()
+action = form.getvalue("action")
 
-if session_id in sessions:
-    sessions[session_id]["visits"] += 1
+if action == "enable":
+    session_id = get_session_id()
+    if session_id is None:
+        session_id = str(uuid.uuid4())
+        sessions[session_id] = {"visits": 1}
+        set_session_cookie(session_id)
+        print(f"<p>Votre ID de session est : {session_id}</p>")
 
-set_session_cookie(session_id)
-visit_count = sessions[session_id]["visits"]
-print(
-    f"<p>Vous avez visité cette page {visit_count} fois dans cette session.</p>")
+elif action == "disable":
+    delete_session_cookie()
+
+else:
+    session_id = get_session_id()
+    if session_id:
+        sessions[session_id]["visits"] += 1
+        visit_count = sessions[session_id]["visits"]
+        print(
+            f"<p>Vous avez visité cette page {visit_count} fois dans cette session.</p>"
+        )

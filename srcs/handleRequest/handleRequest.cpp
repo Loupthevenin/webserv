@@ -6,10 +6,11 @@
 /*   By: opdibia <opdibia@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/11 16:09:00 by ltheveni          #+#    #+#             */
-/*   Updated: 2025/03/25 20:01:41 by opdibia          ###   ########.fr       */
+/*   Updated: 2025/03/26 11:17:25 by ltheveni         ###   ########.fr       */
+/*   Updated: 2025/03/25 10:04:40 by ltheveni         ###   ########.fr       */
+/*   Updated: 2025/03/22 14:29:43 by ltheveni         ###   ########.fr       */
+/*   Updated: 2025/03/15 12:45:03 by ltheveni         ###   ########.fr       */
 /*                                                                            */
-/* ************************************************************************** */
-
 /* ************************************************************************** */
 
 #include "../../includes/webserv.h"
@@ -19,25 +20,32 @@ void handleMethod(int fd, HttpRequest &request, Server &serverConfig) {
 
   HttpResponse response;
 
-  (void)serverConfig;
   if (request.getMethod() == "GET") {
-	logInfo("HTTP", "Request GET", _BLUE);
-    if (handleGet(request, response, serverConfig, fd) == 1)
+    logInfo("HTTP", "Request GET", _BLUE);
+    if ("/methods/files" == request.getUri()) {
+      std::string body = listFilesInDirectory("www/methods/delete");
+      response.setStatus(200);
+      response.setHeader("Content-Type", "application/json");
+      response.setBody(body);
+    } else if (handleGet(request, response, serverConfig, fd) == 1)
       return;
   } else if (request.getMethod() == "POST") {
     // handlePost();
-	logInfo("HTTP", "Request POST", _PURPLE);
+    logInfo("HTTP", "Request POST", _PURPLE);
     if (request.getUri() == "/cgi/cgi.sh") {
       CGIExec cgi("www/cgi/cgi.sh", request, fd);
+      cgi.execute(request.getBody());
+    } else if (request.getUri() == "/cgi/uploads.py") {
+      CGIExec cgi("www/cgi/uploads.py", request, fd);
       cgi.execute(request.getBody());
     }
 
   } else if (request.getMethod() == "DELETE") {
     // handleDelete();
-	logInfo("HTTP", "Request DELETE", _CYAN);
+    logInfo("HTTP", "Request DELETE", _CYAN);
   }
-  std::cout << "status = " << response.getStatus() << " body = " <<
-  response.getBody() << std::endl;
+  // std::cout << "status = " << response.getStatus()
+  //           << " body = " << response.getBody() << std::endl;
   std::string message = response.toString();
   send(fd, message.c_str(), message.size(), 0);
   close(fd);
@@ -48,7 +56,7 @@ int readClientData(int fd, Epoll &epoll, std::map<int, HttpRequest> &requests,
 
   int bytes_read = read(fd, &buffer[0], buffer.size() - 1);
   if (bytes_read == -1) {
-	logError("reading data");
+    logError("reading data");
     epoll.removeFd(fd);
     close(fd);
     return -1;
@@ -76,8 +84,9 @@ Server *findServerConfig(HttpRequest &request, ConfigParser &conf) {
     std::istringstream iss(port_str);
     iss >> client_port;
     if (iss.fail()) {
-		std::string message = std::string("Invalid port in Host header: ") + port_str;
-		logError(message);
+      std::string message =
+          std::string("Invalid port in Host header: ") + port_str;
+      logError(message);
       return (NULL);
     }
   } else {
@@ -120,7 +129,7 @@ void handleRequest(int fd, Epoll &epoll, ConfigParser &conf) {
       if (serverConfig) {
         size_t maxBodySize = serverConfig->get_body_client();
         if (request.getBody().size() > maxBodySize) {
-			logError("Body size exceeds maximum allowed limits!");
+          logError("Body size exceeds maximum allowed limits!");
           sendError(fd, 413, "<h1>413 Request Entity Too Large</h1>");
           closeConnexion(fd, epoll, requests);
           return;
@@ -133,7 +142,7 @@ void handleRequest(int fd, Epoll &epoll, ConfigParser &conf) {
       static_cast<size_t>(request.getContentLength())) {
     Server *serverConfig = findServerConfig(request, conf);
     if (!serverConfig) {
-		logError("No matching server block found for host");
+      logError("No matching server block found for host");
       sendError(fd, 404, "<h1>404 Not Found</h1>");
       closeConnexion(fd, epoll, requests);
       return;
