@@ -24,12 +24,21 @@
     </div>
 
     <div class="card">
-      <h2>POST Request</h2>
-      <p>Créer un fichier sur le server</p>
-      <input type="text" id="fileName" placeholder="Entrez le nom du fichier" />
-      <input type="text" id="postData" placeholder="Entrez des données" />
-      <button onclick="sendPostRequest()">SEND</button>
-      <p id="postResponse"></p>
+      <h2>GET Request CGI</h2>
+      <p>Envoie une requête GET CGI et l'affiche dans une nouvelle page</p>
+      <button onclick="sendGetCGIRequestNewWindow()">SEND</button>
+    </div>
+
+    <div class="card">
+      <h2>POST Request CGI</h2>
+      <p>Envoie des données et modifie la page.</p>
+      <input
+        type="text"
+        id="postData"
+        placeholder="Enrez des données"
+        required
+      />
+      <button onclick="sendPostRequestNewWindow()">SEND</button>
     </div>
 
     <div class="card">
@@ -45,15 +54,25 @@
     <div class="card">
       <h2>Uploads</h2>
       <form
-        action="/cgi-bin/upload.py"
+        id="uploadForm"
+        action="/cgi/upload.py"
         method="POST"
         enctype="multipart/form-data"
       >
         <label for="file">Sélectionner un fichier :</label>
         <input type="file" id="file" name="file" required />
         <br />
-        <input type="submit" value="Téléverser le fichier" />
+        <input type="submit" value="Téléverser le fichier" class="button" />
       </form>
+      <div id="responseMessage"></div>
+    </div>
+
+    <div class="card">
+      <h2>Gestion des Cookies</h2>
+      <p>Activer ou désactiver les cookies.</p>
+      <button onclick="enableCookies()">Activer les cookies</button>
+      <button onclick="disableCookies()">Désactiver les cookies</button>
+      <p id="cookieStatus"></p>
     </div>
   </body>
 </html>
