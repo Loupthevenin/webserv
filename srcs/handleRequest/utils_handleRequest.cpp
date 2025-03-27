@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   utils_handleRequest.cpp                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: opdibia <opdibia@student.42.fr>            +#+  +:+       +#+        */
+/*   By: opdi-bia <opdi-bia@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/14 14:57:19 by ltheveni          #+#    #+#             */
-/*   Updated: 2025/03/25 20:55:19 by opdibia          ###   ########.fr       */
+/*   Updated: 2025/03/27 14:26:00 by opdi-bia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,7 +61,6 @@ std::string listFilesInDirectory(const std::string &directory) {
       oss << "\"" << filename << "\"";
     }
   }
-
   closedir(dir);
   oss << "] }";
   return oss.str();
@@ -79,19 +78,6 @@ void setFdNonBlocking(int fd) {
   }
 }
 
-
-bool    body_size(HttpRequest &request, Location location){
-    if(location.get_body_client() != 0)
-    {
-        size_t maxBodySize = location.get_body_client();
-        if (request.getBody().size() > maxBodySize) {
-            return(false);
-        }
-    }
-    return(true);
-}
-
-
 int     check_file(std::string& filePath){
     struct stat s;
 	if (stat(filePath.c_str(), &s) != 0)
@@ -105,6 +91,30 @@ int     check_file(std::string& filePath){
         return (500);
     file.close();
     return(200);
+}
+
+std::string buildReturnResponse(int code, std::string &url) {
+  std::ostringstream oss;
+  oss << "HTTP/1.1 " << code << " ";
+
+  switch (code) {
+  case 301: oss << "Moved Permanently";
+    break;
+  case 302: oss << "Found";
+    break;
+  case 303: oss << "See Other";
+    break;
+  case 307: oss << "Temporary Redirect";
+    break;
+  case 308: oss << "Permanent Redirect";
+    break;
+  default: oss << "Error";
+    break;
+  }
+  std::string body = "<html><body><h1>" + oss.str() + "</h1></body></html>";
+  oss << body;
+  oss << "Location: " << url << "\r\n";
+  return (oss.str());
 }
 
 std::string buildErrorResponse(int code) {
@@ -164,6 +174,15 @@ std::string set_autoindex(const std::string& filePath){
     return (html.str());
 }
 
+std::string get_ext(std::string uri){
+  std::size_t found = uri.find_last_of(".");
+  if (found!=std::string::npos)
+  {
+    std::string extension = uri.substr(found);
+    return(extension);
+  }
+  return("");
+}
 
 std::string  check_header(std::string uri){
     std::map<std::string, std::string> c_type;
@@ -177,11 +196,12 @@ std::string  check_header(std::string uri){
     
     if (found!=std::string::npos)
     {
-		std::string extension = uri.substr(found);
-		std::map<std::string, std::string>::iterator it = c_type.find(extension);
-		if (it != c_type.end())
-			return it->second;
-        return("application/octet-stream");
+      std::string extension = uri.substr(found);
+      std::map<std::string, std::string>::iterator it = c_type.find(extension);
+      if (it != c_type.end())
+        return it->second;
+          return("application/octet-stream");
     }
     return("application/octet-stream");
 }
+

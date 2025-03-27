@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: opdibia <opdibia@student.42.fr>            +#+  +:+       +#+        */
+/*   By: opdi-bia <opdi-bia@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/11 18:01:04 by opdi-bia          #+#    #+#             */
-/*   Updated: 2025/03/24 16:26:43 by opdibia          ###   ########.fr       */
+/*   Updated: 2025/03/27 15:37:29 by opdi-bia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 
 Server::Server() {
     _method.resize(3, ""); 
+    _method.resize(2, ""); 
 }
 Server::Server(const Server& other) 
     : _server_map(other._server_map), _locations(other._locations), _method(other._method) {
@@ -45,6 +46,12 @@ void  Server::set_method(int i, const std::string &value) {
     if(i < 0 || i >= 3)
         throw VectorExeption();
     _method[i] = value;
+}
+
+void  Server::set_cgi_ext(int i, const std::string &value) {
+    if(i < 0 || i >= 3)
+        throw VectorExeption();
+    _cgiExt[i] = value;
 }
 
 std::string  Server::get_method(int i) {
@@ -132,11 +139,44 @@ std::string Server::get_autoindex(){
     else
         return ("");
 }
-  
+
+std::string Server::get_cgi_enable() const{
+    std::map<std::string, AnyValue>::const_iterator it = _server_map.find("cgi_enable");
+    if (it != _server_map.end()) 
+        return (it->second.getString());
+    else
+        return ("");
+}
+
+std::string Server::get_cgi_extension() const{
+    std::map<std::string, AnyValue>::const_iterator it = _server_map.find("cgi_extension");
+    if (it != _server_map.end()) 
+        return (it->second.getString());
+    else
+        return ("");
+}
+
+std::string Server::get_cgi_path() const{
+    std::map<std::string, AnyValue>::const_iterator it = _server_map.find("cgi_path");
+    if (it != _server_map.end()) 
+        return (it->second.getString());
+    else
+        return ("");
+}
+
 bool    Server::is_method(std::string str){
     for(int i = 0; i < 3; i++)
     {
         if(_method[i] == str)
+            return(true);
+    }
+    return(false);
+}
+
+bool    Server::is_cgi_ext(std::string str){
+    for(int i = 0; i < 2; i++)
+    {
+        if(_cgiExt[i] == str)
             return(true);
     }
     return(false);

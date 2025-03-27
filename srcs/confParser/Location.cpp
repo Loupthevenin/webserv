@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Location.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: opdibia <opdibia@student.42.fr>            +#+  +:+       +#+        */
+/*   By: opdi-bia <opdi-bia@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/12 11:06:50 by opdibia           #+#    #+#             */
-/*   Updated: 2025/03/23 01:00:18 by opdibia          ###   ########.fr       */
+/*   Updated: 2025/03/27 15:37:14 by opdi-bia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 
 Location::Location(){
     _method.resize(3, ""); 
+    _cgiExt.resize(2, ""); 
 }
 
 Location::Location(const Location& other) : _method(other._method){
@@ -45,6 +46,13 @@ void  Location::set_method(int i, const std::string &value) {
     _method[i] = value;
 }
 
+void  Location::set_cgi_ext(int i, const std::string &value) {
+    if(i < 0 || i >= 3)
+        throw VectorExeption();
+    _cgiExt[i] = value;
+}
+
+
 void Location::setValue(const std::string &key, const AnyValue &value) {
     if(key != "}")
     {
@@ -66,11 +74,31 @@ void  Location::setMethod(std::string value) {
   }
 }
 
+void  Location::setCgiExt(std::string value) {
+    std::istringstream iss(value);
+    std::string word;
+    int i = 0;
+  
+    while(iss >> word)
+    {
+      check_cgi_ext(word);
+      set_cgi_ext(i, word);
+      i++;
+    }
+  }
+  
+
 std::string  Location::get_method(int i)  const {
   if(!_method[i].empty())
       return(_method[i]);
   return("");
 }
+
+std::string  Location::get_cgiExt(int i)  const {
+    if(!_cgiExt[i].empty())
+        return(_cgiExt[i]);
+    return("");
+  }
 
 AnyValue Location::getValue(const std::string &key) const {
     std::map<std::string, AnyValue>::const_iterator it = _map_location.find(key);
@@ -183,6 +211,15 @@ bool    Location::is_method(std::string str){
     return(false);
 }
 
+bool    Location::is_cgiExt(std::string str){
+    for(int i = 0; i < 2; i++)
+    {
+        if(_cgiExt[i] == str)
+            return(true);
+    }
+    return(false);
+}
+
 void Location::check_value(const std::string &key, const AnyValue&value){
     if(value.isEmpty())
         throw WrongValueExeption("location : empty key : " + key);
@@ -197,7 +234,7 @@ void Location::check_value(const std::string &key, const AnyValue&value){
     else if(key == "return")
         check_return(value.getString());
     else if(key == "cgi_extension")
-        check_cgi_ext(value.getString());
+        setCgiExt(value.getString());
     else if(key == "cgi_enable")
         check_cgi_enable(value.getString());
     else if (key == "root" && !get_alias().empty())
@@ -298,7 +335,7 @@ void  Location::check_return(std::string value){
 }
 
 void  Location::check_cgi_ext(std::string value){
-  if(value.compare(".php"))
+  if(value.compare(".py") && value.compare(".sh"))
     throw WrongValueExeption("location : invalid cgi_extension " + value);
 }
 
