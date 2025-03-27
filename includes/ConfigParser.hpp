@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ConfigParser.hpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: opdibia <opdibia@student.42.fr>            +#+  +:+       +#+        */
+/*   By: opdi-bia <opdi-bia@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/09 12:17:51 by ltheveni          #+#    #+#             */
-/*   Updated: 2025/03/23 00:48:56 by opdibia          ###   ########.fr       */
+/*   Updated: 2025/03/27 15:22:45 by opdi-bia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,8 @@ private:
   void check_autoindex(std::string value);
   void check_body_size(Server &currentServer, std::string value);
   void check_value(Server &currentServer, std::string key, std::string value);
+  void check_cgi_ext(std::string value);
+  void check_cgi_enable(std::string value);
   
 public:
   std::vector<Server> servers;
@@ -43,6 +45,7 @@ public:
   void parseConfig();
   void set_errorPage(Server &currentServer, std::string value);
   void setMethod(Server &c_server, std::string value);
+  void setCgiExt(Server &c_server, std::string value);
   class ConfExeption : public std:: exception
   {
     public :

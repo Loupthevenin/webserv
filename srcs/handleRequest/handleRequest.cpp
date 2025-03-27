@@ -3,13 +3,13 @@
 /*                                                        :::      ::::::::   */
 /*   handleRequest.cpp                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: opdibia <opdibia@student.42.fr>            +#+  +:+       +#+        */
+/*   By: opdi-bia <opdi-bia@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/11 16:09:00 by ltheveni          #+#    #+#             */
-/*   Updated: 2025/03/26 11:17:25 by ltheveni         ###   ########.fr       */
-/*   Updated: 2025/03/25 10:04:40 by ltheveni         ###   ########.fr       */
-/*   Updated: 2025/03/22 14:29:43 by ltheveni         ###   ########.fr       */
-/*   Updated: 2025/03/15 12:45:03 by ltheveni         ###   ########.fr       */
+/*   Updated: 2025/03/27 15:15:25 by opdi-bia         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,18 +30,11 @@ void handleMethod(int fd, HttpRequest &request, Server &serverConfig) {
     } else if (handleGet(request, response, serverConfig, fd) == 1)
       return;
   } else if (request.getMethod() == "POST") {
-    // handlePost();
+    if(handlePost(request, response, serverConfig, fd) == 1)
+      return;
     logInfo("HTTP", "Request POST", _PURPLE);
-    if (request.getUri() == "/cgi/cgi.sh") {
-      CGIExec cgi("www/cgi/cgi.sh", request, fd);
-      cgi.execute(request.getBody());
-    } else if (request.getUri() == "/cgi/uploads.py") {
-      CGIExec cgi("www/cgi/uploads.py", request, fd);
-      cgi.execute(request.getBody());
-    }
-
   } else if (request.getMethod() == "DELETE") {
-    // handleDelete();
+    handleDelete(request, response, serverConfig, fd);
     logInfo("HTTP", "Request DELETE", _CYAN);
   }
   // std::cout << "status = " << response.getStatus()

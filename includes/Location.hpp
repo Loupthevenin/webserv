@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Location.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: opdibia <opdibia@student.42.fr>            +#+  +:+       +#+        */
+/*   By: opdi-bia <opdi-bia@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/12 11:06:35 by opdibia           #+#    #+#             */
-/*   Updated: 2025/03/23 00:42:52 by opdibia          ###   ########.fr       */
+/*   Updated: 2025/03/27 15:34:31 by opdi-bia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,7 @@ class Location {
 private:
     std::map<std::string, AnyValue> _map_location;
     std::vector<std::string> _method; 
+    std::vector<std::string> _cgiExt; 
     void check_value(const std::string &key, const AnyValue &value);
     void check_allowMethod(std::string value); 
     void check_autoindex(std::string value); 
@@ -37,9 +38,12 @@ public:
     Location& operator=(const Location& other);
     ~Location();
     void  set_method(int i, const std::string &value);
+    void  set_cgi_ext(int i, const std::string &value);
     void setValue(const std::string &key, const AnyValue&value);
     void  setMethod(std::string value);
+    void  setCgiExt(std::string value);
     std::string  get_method(int i) const;
+    std::string  get_cgiExt(int i) const;
     AnyValue getValue(const std::string &key) const;
     std::string get_nameLoc() const;
     size_t get_body_client() const;
@@ -54,6 +58,7 @@ public:
     std::string get_cgi_path() const;
     bool is_emptyMethods();
     bool is_method(std::string str);
+    bool is_cgiExt(std::string str);
     class WrongValueExeption : public std::exception {
     private:
         std::string message;
