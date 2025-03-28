@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   webserv.h                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: opdi-bia <opdi-bia@student.42.fr>          +#+  +:+       +#+        */
+/*   By: opdibia <opdibia@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/11 12:15:33 by ltheveni          #+#    #+#             */
-/*   Updated: 2025/03/27 14:51:29 by opdi-bia         ###   ########.fr       */
+/*   Updated: 2025/03/28 18:20:23 by opdibia          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,6 +47,9 @@ int		check_location(Location &location, Server &serverConfig,
 std::string find_loc(HttpRequest &request, Server &serverConfig);
 int		check_server(HttpRequest &request, HttpResponse &response,
 	Server &serverConfig, int fd);
+
+//UtilsDelete
+void     check_dir(HttpResponse &response, std::string filePath);
 
 // Utils handleRequest
 void	sendError(int fd, int statusCode, const std::string &body);

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   utils_handleRequest.cpp                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: opdi-bia <opdi-bia@student.42.fr>          +#+  +:+       +#+        */
+/*   By: opdibia <opdibia@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/14 14:57:19 by ltheveni          #+#    #+#             */
-/*   Updated: 2025/03/27 14:26:00 by opdi-bia         ###   ########.fr       */
+/*   Updated: 2025/03/28 18:38:10 by opdibia          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,16 +82,54 @@ int     check_file(std::string& filePath){
     struct stat s;
 	if (stat(filePath.c_str(), &s) != 0)
 		return (404);
-    if (S_ISDIR(s.st_mode))
-        return (403);
-    if (access(filePath.c_str(), R_OK) != 0)
-        return (403);
-    std::ifstream file(filePath.c_str(), std::ios::in | std::ios::binary);
-    if (!file.is_open())
-        return (500);
-    file.close();
-    return(200);
+  if (S_ISDIR(s.st_mode))
+      return (403);
+  if (access(filePath.c_str(), R_OK) != 0)
+      return (403);
+  std::ifstream file(filePath.c_str(), std::ios::in | std::ios::binary);
+  if (!file.is_open())
+      return (500);
+  file.close();
+  return(200);
 }
+
+void     check_dir(HttpResponse &response, std::string file){
+  struct stat s;
+  
+  size_t found = file.find_last_of("/");
+  std::string dirPath = file.substr(0, found);
+  if (stat(dirPath.c_str(), &s) != 0)
+  {
+    response.setStatus(404);
+    response.setHeader("Content-Type", "text/plain");
+    response.setBody("404 - Not Found");
+  }
+  else if (!S_ISDIR(s.st_mode))
+  {
+    response.setStatus(403);
+    response.setHeader("Content-Type", "text/plain");
+    response.setBody("403 - Forbidden");
+  }
+  else if (access(dirPath.c_str(), W_OK | X_OK) != 0)
+  {
+    response.setStatus(403);
+    response.setHeader("Content-Type", "text/plain");
+    response.setBody("403 - Not Found");
+  }
+  else if (access(file.c_str(), F_OK) == -1)
+  {
+      response.setStatus(404);
+      response.setHeader("Content-Type", "text/plain");
+      response.setBody("404 - Not Found");
+  }
+  else if (std::remove(file.c_str()) == 0)
+  {    
+    response.setStatus(200);
+    response.setHeader("Content-Type", "text/plain");
+    response.setBody("200 - file deleted");
+  }
+}
+
 
 std::string buildReturnResponse(int code, std::string &url) {
   std::ostringstream oss;

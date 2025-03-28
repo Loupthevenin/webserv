@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: opdi-bia <opdi-bia@student.42.fr>          +#+  +:+       +#+        */
+/*   By: opdibia <opdibia@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/11 18:01:04 by opdi-bia          #+#    #+#             */
-/*   Updated: 2025/03/27 15:37:29 by opdi-bia         ###   ########.fr       */
+/*   Updated: 2025/03/28 16:16:54 by opdibia          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,10 +15,10 @@
 
 Server::Server() {
     _method.resize(3, ""); 
-    _method.resize(2, ""); 
+    _cgiExt.resize(2, ""); 
 }
 Server::Server(const Server& other) 
-    : _server_map(other._server_map), _locations(other._locations), _method(other._method) {
+    : _server_map(other._server_map), _locations(other._locations), _method(other._method), _cgiExt(other._cgiExt) {
 }
 
 Server& Server::operator=(const Server& other) {
@@ -26,6 +26,7 @@ Server& Server::operator=(const Server& other) {
         _server_map = other._server_map;
         _locations = other._locations;
         _method = other._method;
+        _cgiExt = other._cgiExt;
     }
     return *this;
 }

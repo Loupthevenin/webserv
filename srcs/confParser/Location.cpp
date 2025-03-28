@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Location.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: opdi-bia <opdi-bia@student.42.fr>          +#+  +:+       +#+        */
+/*   By: opdibia <opdibia@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/12 11:06:50 by opdibia           #+#    #+#             */
-/*   Updated: 2025/03/27 15:37:14 by opdi-bia         ###   ########.fr       */
+/*   Updated: 2025/03/28 16:12:46 by opdibia          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ Location::Location(){
     _cgiExt.resize(2, ""); 
 }
 
-Location::Location(const Location& other) : _method(other._method){
+Location::Location(const Location& other) : _method(other._method), _cgiExt(other._cgiExt) {
     for (std::map<std::string, AnyValue>::const_iterator it = other._map_location.begin();
          it != other._map_location.end(); ++it) {
         _map_location[it->first] = AnyValue(it->second);
@@ -30,6 +30,8 @@ Location& Location::operator=(const Location& other) {
     if (this != &other) {
         _map_location.clear(); 
         _method = other._method;
+        _cgiExt = other._cgiExt;
+        ;
         for (std::map<std::string, AnyValue>::const_iterator it = other._map_location.begin();
              it != other._map_location.end(); ++it) {
             _map_location[it->first] = AnyValue(it->second);
@@ -47,7 +49,7 @@ void  Location::set_method(int i, const std::string &value) {
 }
 
 void  Location::set_cgi_ext(int i, const std::string &value) {
-    if(i < 0 || i >= 3)
+    if(i < 0 || i >= 2)
         throw VectorExeption();
     _cgiExt[i] = value;
 }
@@ -212,6 +214,7 @@ bool    Location::is_method(std::string str){
 }
 
 bool    Location::is_cgiExt(std::string str){
+    
     for(int i = 0; i < 2; i++)
     {
         if(_cgiExt[i] == str)

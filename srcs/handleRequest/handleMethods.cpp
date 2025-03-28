@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   handleMethods.cpp                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: opdi-bia <opdi-bia@student.42.fr>          +#+  +:+       +#+        */
+/*   By: opdibia <opdibia@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/27 12:24:35 by opdi-bia          #+#    #+#             */
-/*   Updated: 2025/03/27 15:18:02 by opdi-bia         ###   ########.fr       */
+/*   Updated: 2025/03/28 18:35:07 by opdibia          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,16 +101,6 @@ int	handlePost(HttpRequest &request, HttpResponse &response, Server &serverConfi
           if(res != 0)
             return(res);
     }
-    // if (filePath == "/cgi/cgi.sh") {
-    //     CGIExec cgi("www/cgi/cgi.sh", request, fd);
-    //     cgi.execute(request.getBody());
-    //     return(1);
-    // } 
-    // if (filePath == "/cgi/uploads.py") {
-    //     CGIExec cgi("www/cgi/uploads.py", request, fd);
-    //     cgi.execute(request.getBody());
-    //     return(1);
-    // }
     if(create_file(request, response) == 1)
         return(1);
     return(0);
@@ -158,11 +148,6 @@ int handleDelete(HttpRequest &request, HttpResponse &response, Server &serverCon
     }
     std::string file = request.getUri(); 
     file = set_filePath_loc(location, loc, serverConfig, request);
-    if (access(file.c_str(), F_OK) == -1)
-        response.setStatus(404);
-    else if (std::remove(file.c_str()) == 0)
-        response.setStatus(204);
-    else
-        response.setStatus(500);
+    check_dir(response, file);
     return(0);
 }
