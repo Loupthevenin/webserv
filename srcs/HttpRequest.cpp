@@ -6,7 +6,7 @@
 /*   By: ltheveni <ltheveni@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/11 15:23:58 by ltheveni          #+#    #+#             */
-/*   Updated: 2025/03/29 17:28:09 by ltheveni         ###   ########.fr       */
+/*   Updated: 2025/03/29 19:23:16 by ltheveni         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,6 +76,21 @@ bool HttpRequest::isValidHeader(const std::string &line) {
   return true;
 }
 
+bool HttpRequest::isDoubleHeader() {
+  std::set<std::string> seenHeaders;
+
+  for (std::map<std::string, std::string>::iterator it = headers.begin();
+       it != headers.end(); ++it) {
+    const std::string &key = it->first;
+
+    if (seenHeaders.find(key) != seenHeaders.end())
+      return true;
+
+    seenHeaders.insert(key);
+  }
+  return false;
+}
+
 void HttpRequest::appendRawData(const std::string &data) {
   rawData += data;
 
@@ -142,6 +157,12 @@ void HttpRequest::parseHeaders() {
   if (!foundEmptyLine)
     throw std::runtime_error(
         "400 Bad Request: Missing empty line between headers and body");
+
+  if (headers.find("host") == headers.end() || headers["host"].empty())
+    throw std::runtime_error("400 Bad Request: Missing or empty Host header");
+
+  if (isDoubleHeader())
+    throw std::runtime_error("400 Bad Request: Double Header");
 
   contentLength = 0;
   if (headers.find("content-length") != headers.end()) {
