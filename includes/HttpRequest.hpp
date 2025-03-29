@@ -6,7 +6,7 @@
 /*   By: opdi-bia <opdi-bia@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/11 15:24:13 by ltheveni          #+#    #+#             */
-/*   Updated: 2025/03/29 16:33:22 by ltheveni         ###   ########.fr       */
+/*   Updated: 2025/03/29 19:14:51 by ltheveni         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 #include <cstring>
 #include <iostream>
 #include <map>
+#include <set>
 #include <sstream>
 #include <stdexcept>
 #include <string>
@@ -50,6 +51,7 @@ public:
   bool isHeaderComplete() const;
   bool hasCompleteHeaders();
   bool isValidHeader(const std::string &line);
+  bool isDoubleHeader();
   void appendRawData(const std::string &data);
   void parseHeaders();
   void appendBodyData(const std::string &data);

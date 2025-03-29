@@ -6,7 +6,7 @@
 /*   By: opdi-bia <opdi-bia@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/11 16:09:00 by ltheveni          #+#    #+#             */
-/*   Updated: 2025/03/29 16:48:53 by ltheveni         ###   ########.fr       */
+/*   Updated: 2025/03/29 19:30:00 by ltheveni         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -116,6 +116,7 @@ void handleRequest(int fd, Epoll &epoll, ConfigParser &conf) {
       // 400 BAD REQUEST
       sendError(fd, 400, "");
       closeConnexion(fd, epoll, requests);
+      return;
     }
   } else if (request.getMethod() == "POST") {
     if (request.getContentLength() > 0) {
