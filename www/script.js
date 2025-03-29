@@ -15,9 +15,32 @@ function sendGetCGIRequestNewWindow() {
   window.location.href = "/cgi/cgi.sh";
 }
 
+// POST
+function sendPostRequest() {
+  const file = document.getElementById("fileName").value;
+  const data = document.getElementById("postData").value;
+  if (!file || !data) {
+    alert("Veuillez entrer des données !");
+    return;
+  }
+  const message = `file=${file}$data=${data}`;
+  fetch("/", {
+    method: "POST",
+    headers: {
+      "Content-Type": "text/plain",
+    },
+    body: message,
+  })
+    .then((response) => response.text())
+    .then((html) => {
+      document.getElementById("postResponse").innerHTML = html.message;
+    })
+    .catch((error) => console.error("Erreur lors de l'envoi :", error));
+}
+
 // POST CGI
 function sendPostRequestNewWindow() {
-  let data = document.getElementById("postData").value;
+  let data = document.getElementById("postDataCGI").value;
   if (!data) {
     alert("Veuillez entrer des données !");
     return;
@@ -70,9 +93,9 @@ document.addEventListener("DOMContentLoaded", function () {
     fetch(`/methods/delete/${fileName}`, {
       method: "DELETE",
     })
-      .then((response) => response.json())
-      .then((data) => {
-        document.getElementById("deleteResponse").textContent = data.message;
+      .then((response) => response.text())
+      .then((html) => {
+        document.getElementById("deleteResponse").textContent = html;
         fetchFileList();
       })
       .catch(
@@ -115,35 +138,40 @@ document
 // COOKIES
 function enableCookies() {
   let data = "action=enable";
-  fetch("cgi/cookies.py", {
+  fetch("cgi/cookie.py", {
     method: "POST",
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",
     },
     body: data,
   })
-    .then((response) => response.text())
+    .then((response) => response.json())
     .then((text) => {
-      document.getElementById("cookieStatus").textContent = text;
-      console.log(text);
       console.log("Cookie activé");
+      document.getElementById("cookieStatus").textContent = "Cookie activés";
+      updateVisitCount();
     })
     .catch((error) => console.error("Erreur:", error));
 }
 
-function disableCookies() {
-  let data = "action=disable";
-  fetch("cgi/cookies.py", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-    },
-    body: data,
-  })
-    .then((response) => response.text())
-    .then((text) => {
-      document.getElementById("cookieStatus").textContent = text;
-      console.log("Cookie désactivés");
+function updateVisitCount() {
+  fetch("/cgi/cookie.py")
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.visits !== "Cookies désactivés") {
+        document.getElementById("visitCount").textContent = data.visits;
+      } else {
+        document.getElementById("visitCount").textContent = "";
+      }
     })
     .catch((error) => console.error("Erreur:", error));
 }
+
+document.addEventListener("DOMContentLoaded", function () {
+  if (document.cookie.includes("session_id")) {
+    updateVisitCount();
+    document.getElementById("visitCount").style.display = "block";
+  } else {
+    document.getElementById("visitCount").style.display = "none";
+  }
+});

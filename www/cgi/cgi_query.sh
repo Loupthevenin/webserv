@@ -8,7 +8,7 @@ echo -e "HTTP/1.1 200 OK\r\n"
 
 REQUEST_METHOD=$(echo "$REQUEST_METHOD")
 
-echo "<html><body>"
+echo "<html><head><meta charset='UTF-8'></head><body>"
 
 if [ "$REQUEST_METHOD" = "GET" ]; then
 	echo "<h2>Requête GET</h2>"
