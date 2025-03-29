@@ -6,22 +6,17 @@
 /*   By: opdi-bia <opdi-bia@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/11 16:09:00 by ltheveni          #+#    #+#             */
-/*   Updated: 2025/03/27 15:15:25 by opdi-bia         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
+/*   Updated: 2025/03/28 17:27:46 by ltheveni         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../includes/webserv.h"
 
 void handleMethod(int fd, HttpRequest &request, Server &serverConfig) {
-  request.printRequest();
-
   HttpResponse response;
 
   if (request.getMethod() == "GET") {
-    logInfo("HTTP", "Request GET", _BLUE);
+    logInfo("HTTP", "Request GET", request.getUri(), _BLUE);
     if ("/methods/files" == request.getUri()) {
       std::string body = listFilesInDirectory("www/methods/delete");
       response.setStatus(200);
@@ -30,12 +25,12 @@ void handleMethod(int fd, HttpRequest &request, Server &serverConfig) {
     } else if (handleGet(request, response, serverConfig, fd) == 1)
       return;
   } else if (request.getMethod() == "POST") {
-    if(handlePost(request, response, serverConfig, fd) == 1)
+    if (handlePost(request, response, serverConfig, fd) == 1)
       return;
-    logInfo("HTTP", "Request POST", _PURPLE);
+    logInfo("HTTP", "Request POST", request.getUri(), _PURPLE);
   } else if (request.getMethod() == "DELETE") {
     handleDelete(request, response, serverConfig, fd);
-    logInfo("HTTP", "Request DELETE", _CYAN);
+    logInfo("HTTP", "Request DELETE", request.getUri(), _CYAN);
   }
   // std::cout << "status = " << response.getStatus()
   //           << " body = " << response.getBody() << std::endl;

@@ -6,7 +6,7 @@
 /*   By: opdibia <opdibia@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/09 11:08:41 by ltheveni          #+#    #+#             */
-/*   Updated: 2025/03/24 15:49:47 by ltheveni         ###   ########.fr       */
+/*   Updated: 2025/03/28 11:48:01 by ltheveni         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,19 +23,18 @@ static void initializeServer(Socket &serverSocket, Epoll &epoll, int port) {
 
 static void handleNewConnection(Socket &serverSocket, Epoll &epoll) {
   int client_fd = serverSocket.acceptConnection();
-  std::cout << "Connexion accept !" << std::endl;
   serverSocket.setSocketNonBlocking(client_fd);
 
-	std::string client_ip = serverSocket.getClientIp(client_fd);
-	int client_port = serverSocket.getClientPort(client_fd);
-	if (!client_ip.empty() || client_port != -1)
-		logConnexion(client_ip, client_port);
+  std::string client_ip = serverSocket.getClientIp(client_fd);
+  int client_port = serverSocket.getClientPort(client_fd);
+  if (!client_ip.empty() || client_port != -1)
+    logConnexion(client_ip, client_port);
 
   epoll.addFd(client_fd, EPOLLIN);
 }
 
 static void eventLoop(Epoll &epoll, std::vector<Socket> &serverSockets,
-               ConfigParser &conf) {
+                      ConfigParser &conf) {
   std::vector<struct epoll_event> events(10);
 
   while (g_running) {
@@ -61,7 +60,7 @@ static void eventLoop(Epoll &epoll, std::vector<Socket> &serverSockets,
 
 int main(int argc, char **argv) {
   if (argc != 2) {
-	logError("./webserv *.conf");
+    logError("./webserv *.conf");
     return (-1);
   }
   signal(SIGINT, signalHandler);
@@ -83,7 +82,7 @@ int main(int argc, char **argv) {
     }
     eventLoop(epoll, serverSockets, conf);
   } catch (std::exception &e) {
-	logError(e.what());
+    logError(e.what());
     return (-1);
   }
   return EXIT_SUCCESS;
