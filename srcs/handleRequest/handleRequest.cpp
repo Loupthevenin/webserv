@@ -6,7 +6,7 @@
 /*   By: opdi-bia <opdi-bia@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/11 16:09:00 by ltheveni          #+#    #+#             */
-/*   Updated: 2025/03/28 17:27:46 by ltheveni         ###   ########.fr       */
+/*   Updated: 2025/03/29 16:48:53 by ltheveni         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -108,9 +108,16 @@ void handleRequest(int fd, Epoll &epoll, ConfigParser &conf) {
 
   HttpRequest &request = requests[fd];
 
-  if (!request.isHeaderComplete())
-    request.appendRawData(buffer);
-  else if (request.getMethod() == "POST") {
+  if (!request.isHeaderComplete()) {
+    try {
+      request.appendRawData(buffer);
+    } catch (const std::exception &e) {
+      logError(e.what());
+      // 400 BAD REQUEST
+      sendError(fd, 400, "");
+      closeConnexion(fd, epoll, requests);
+    }
+  } else if (request.getMethod() == "POST") {
     if (request.getContentLength() > 0) {
       request.appendBodyData(buffer);
       Server *serverConfig = findServerConfig(request, conf);

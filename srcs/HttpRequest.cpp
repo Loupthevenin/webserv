@@ -6,12 +6,12 @@
 /*   By: ltheveni <ltheveni@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/11 15:23:58 by ltheveni          #+#    #+#             */
-/*   Updated: 2025/03/23 17:13:47 by ltheveni         ###   ########.fr       */
+/*   Updated: 2025/03/29 17:28:09 by ltheveni         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/HttpRequest.hpp"
-#include <algorithm>
+#include <stdexcept>
 
 HttpRequest::HttpRequest()
     : method(""), uri(""), httpVersion(""), contentLength(0),
@@ -51,9 +51,7 @@ std::string HttpRequest::getHost() const {
   return "";
 }
 
-std::string HttpRequest::getQuery() const {
-	return queryString;
-}
+std::string HttpRequest::getQuery() const { return queryString; }
 
 bool HttpRequest::isHeaderComplete() const { return headerComplete; }
 
@@ -64,6 +62,18 @@ bool HttpRequest::hasCompleteHeaders() {
     return true;
   }
   return false;
+}
+
+bool HttpRequest::isValidHeader(const std::string &line) {
+  std::cout << "Verif Header: '" << line << "'" << std::endl;
+  size_t pos = line.find(": ");
+  if (pos == std::string::npos)
+    return false;
+
+  std::string key = line.substr(0, pos);
+  if (key.empty())
+    return false;
+  return true;
 }
 
 void HttpRequest::appendRawData(const std::string &data) {
@@ -83,35 +93,55 @@ void HttpRequest::parseHeaders() {
   std::istringstream requestStream(rawData);
   std::string line;
 
-  if (std::getline(requestStream, line)) {
-    if (!line.empty() && line[line.size() - 1] == '\r')
-      line.erase(line.size() - 1);
-    std::istringstream lineStream(line);
-    lineStream >> method >> uri >> httpVersion;
-  }
+  if (!std::getline(requestStream, line) || line.empty())
+    throw std::runtime_error("400 Bad Request: Request line missing");
 
-	size_t queryPos = uri.find('?');
-	if (queryPos != std::string::npos)
-	{
-		std::string tmp = uri.substr(0, queryPos);
-		queryString = uri.substr(queryPos + 1);
-		uri = tmp;
-	}
-	else
-		queryString = "";
+  if (line[line.size() - 1] == '\r')
+    line.erase(line.size() - 1);
 
-  while (std::getline(requestStream, line) && line != "\r") {
-    if (!line.empty() && line[line.size() - 1] == '\r')
+  std::istringstream lineStream(line);
+  if (!(lineStream >> method >> uri >> httpVersion))
+    throw std::runtime_error("400 Bad Request: Invalid request line format");
+
+  if (httpVersion != "HTTP/1.1" && httpVersion != "HTTP/1.0")
+    throw std::runtime_error("400 Bad Request: Unsupported HTTP version");
+
+  if (method != "GET" && method != "POST" && method != "DELETE")
+    throw std::runtime_error("400 Bad Request: Unsupported HTTP method");
+
+  size_t queryPos = uri.find('?');
+  if (queryPos != std::string::npos) {
+    std::string tmp = uri.substr(0, queryPos);
+    queryString = uri.substr(queryPos + 1);
+    uri = tmp;
+  } else
+    queryString = "";
+
+  bool foundEmptyLine = false;
+  while (std::getline(requestStream, line)) {
+    if (!line.empty() && line[line.size() - 1] == '\r') {
       line.erase(line.size() - 1);
+    }
+
+    if (line.empty()) {
+      foundEmptyLine = true;
+      break;
+    }
 
     size_t pos = line.find(": ");
     if (pos != std::string::npos) {
       std::string key = line.substr(0, pos);
-	std::transform(key.begin(), key.end(), key.begin(), ::tolower);
+      std::transform(key.begin(), key.end(), key.begin(), ::tolower);
       std::string value = line.substr(pos + 2);
       headers[key] = value;
+    } else {
+      throw std::runtime_error("400 Bad Request: Invalid header format");
     }
   }
+
+  if (!foundEmptyLine)
+    throw std::runtime_error(
+        "400 Bad Request: Missing empty line between headers and body");
 
   contentLength = 0;
   if (headers.find("content-length") != headers.end()) {
