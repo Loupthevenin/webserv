@@ -23,7 +23,7 @@ function sendPostRequest() {
     alert("Veuillez entrer des données !");
     return;
   }
-  const message = `file=${file}$data=${data}`;
+  const message = `file=${file} data=${data}`;
   fetch("/", {
     method: "POST",
     headers: {
@@ -33,7 +33,7 @@ function sendPostRequest() {
   })
     .then((response) => response.text())
     .then((html) => {
-      document.getElementById("postResponse").innerHTML = html.message;
+      document.getElementById("postResponse").innerText = html;
     })
     .catch((error) => console.error("Erreur lors de l'envoi :", error));
 }
