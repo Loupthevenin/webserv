@@ -6,7 +6,7 @@
 /*   By: opdi-bia <opdi-bia@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/09 12:17:37 by ltheveni          #+#    #+#             */
-/*   Updated: 2025/03/27 15:24:58 by opdi-bia         ###   ########.fr       */
+/*   Updated: 2025/03/30 13:22:41 by ltheveni         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -118,7 +118,7 @@ void ConfigParser::check_isNameServer(Server &currentServer)
   int i = 0;
   std::ostringstream oss;
   oss << i; 
-  std::string default_name = "default_server_" + oss.str();
+  std::string default_name = "";
   
   if(currentServer.get_mapValue("server_name").isEmpty())
   {
@@ -129,7 +129,7 @@ void ConfigParser::check_isNameServer(Server &currentServer)
       oss.clear();
       oss << i; 
       std::cout << "i = " << oss.str();
-      default_name = "default_server_" + oss.str();
+      default_name = "";
     }
     currentServer.set_mapValue("server_name", default_name);
   }

@@ -6,7 +6,7 @@
 /*   By: ltheveni <ltheveni@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/11 15:23:58 by ltheveni          #+#    #+#             */
-/*   Updated: 2025/03/29 19:23:16 by ltheveni         ###   ########.fr       */
+/*   Updated: 2025/03/30 11:33:16 by ltheveni         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,7 @@ std::string HttpRequest::getBody() const { return body; }
 int HttpRequest::getContentLength() const { return contentLength; }
 
 std::string HttpRequest::getHost() const {
-  std::map<std::string, std::string>::const_iterator it = headers.find("Host");
+  std::map<std::string, std::string>::const_iterator it = headers.find("host");
   if (it != headers.end()) {
     std::string host = it->second;
     if (!host.empty() && host[host.size() - 1] == '\r')
