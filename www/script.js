@@ -67,16 +67,23 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function fetchFileList() {
     fetch("/methods/files")
-      .then((response) => response.json())
-      .then((data) => {
+      .then((response) => response.text())
+      .then((html) => {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, "text/html");
+
         const fileList = document.getElementById("fileList");
         fileList.innerHTML =
           '<option value="">Sélectionner un fichier</option>';
-        data.files.forEach((file) => {
-          let option = document.createElement("option");
-          option.value = file;
-          option.textContent = file;
-          fileList.appendChild(option);
+        const links = doc.querySelectorAll("a");
+        links.forEach((link) => {
+          const fileName = link.textContent.trim();
+          if (fileName !== ".." && fileName !== "." && fileName !== "") {
+            let option = document.createElement("option");
+            option.value = fileName;
+            option.textContent = fileName;
+            fileList.appendChild(option);
+          }
         });
       })
       .catch((error) => console.error("Error files delete: ", error));

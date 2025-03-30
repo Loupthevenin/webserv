@@ -6,7 +6,7 @@
 /*   By: opdibia <opdibia@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/11 12:15:33 by ltheveni          #+#    #+#             */
-/*   Updated: 2025/03/30 10:57:19 by ltheveni         ###   ########.fr       */
+/*   Updated: 2025/03/30 20:28:04 by ltheveni         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,7 +59,6 @@ void	sendError(int fd, int statusCode, const std::string &body);
 void	closeConnexion(int fd, Epoll &epoll, std::map<int,
 			HttpRequest> &requests);
 std::string readFile(const std::string &filePath);
-std::string listFilesInDirectory(const std::string &directory);
 void	setFdNonBlocking(int fd);
 int		check_file(std::string &filePath);
 std::string buildErrorResponse(int code);

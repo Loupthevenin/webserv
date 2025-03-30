@@ -6,7 +6,7 @@
 /*   By: opdibia <opdibia@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/14 14:57:19 by ltheveni          #+#    #+#             */
-/*   Updated: 2025/03/30 10:57:07 by ltheveni         ###   ########.fr       */
+/*   Updated: 2025/03/30 20:27:46 by ltheveni         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,30 +42,6 @@ std::string readFile(const std::string &filePath) {
     content += line + "\n";
   file.close();
   return content;
-}
-
-std::string listFilesInDirectory(const std::string &directory) {
-  std::ostringstream oss;
-  oss << "{ \"files\": [";
-
-  DIR *dir = opendir(directory.c_str());
-  if (!dir)
-    return "{ \"Error\": \"open directory\"";
-
-  struct dirent *entry;
-  bool first = true;
-  while ((entry = readdir(dir)) != NULL) {
-    std::string filename(entry->d_name);
-    if (filename != "." && filename != "..") {
-      if (!first)
-        oss << ", ";
-      first = false;
-      oss << "\"" << filename << "\"";
-    }
-  }
-  closedir(dir);
-  oss << "] }";
-  return oss.str();
 }
 
 void setFdNonBlocking(int fd) {

@@ -6,7 +6,7 @@
 /*   By: opdibia <opdibia@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/27 12:58:00 by opdi-bia          #+#    #+#             */
-/*   Updated: 2025/03/29 10:42:52 by ltheveni         ###   ########.fr       */
+/*   Updated: 2025/03/30 15:40:53 by ltheveni         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,7 @@ int create_file(HttpRequest &request, HttpResponse &response) {
     response.setStatus(400);
     response.setHeader("Content-Type", "text/plain");
     response.setBody("400 - Requête invalide");
-    return (1);
+    return (0);
   }
   found_file += 5;
   found_data += 5;
@@ -56,14 +56,14 @@ int create_file(HttpRequest &request, HttpResponse &response) {
     response.setStatus(400);
     response.setHeader("Content-Type", "text/plain");
     response.setBody("400 - Nom de fichier invalide");
-    return (1);
+    return (0);
   }
   std::ofstream file(fileName.c_str());
   if (!file) {
     response.setStatus(500);
     response.setHeader("Content-Type", "text/plain");
     response.setBody("500 - Erreur lors de la création du fichier");
-    return (1);
+    return (0);
   }
   file << fileData;
   file.close();
