@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Location.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: opdibia <opdibia@student.42.fr>            +#+  +:+       +#+        */
+/*   By: opdi-bia <opdi-bia@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/12 11:06:50 by opdibia           #+#    #+#             */
-/*   Updated: 2025/03/28 16:12:46 by opdibia          ###   ########.fr       */
+/*   Updated: 2025/03/31 12:50:23 by opdi-bia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -207,6 +207,7 @@ bool    Location::is_emptyMethods(){
 bool    Location::is_method(std::string str){
     for(int i = 0; i < 3; i++)
     {
+        // std::cout << "method = " << _method[i] << std::endl;
         if(_method[i] == str)
             return(true);
     }
@@ -242,8 +243,11 @@ void Location::check_value(const std::string &key, const AnyValue&value){
         check_cgi_enable(value.getString());
     else if (key == "root" && !get_alias().empty())
         throw WrongValueExeption("location : Invalid config: 'root' and 'alias' cannot be used together.");
-     else if (key == "alias" && !get_root().empty())
+    else if (key == "alias" && !get_root().empty())
         throw WrongValueExeption("location : Invalid config: 'root' and 'alias' cannot be used together."); 
+    else if(key.compare("nameLoc") && key.compare("index") && key.compare("root") && key.compare("alias"))
+        throw WrongValueExeption("location : Invalid key : " + key);
+
 }
 
 void Location::check_allowMethod(std::string value) {

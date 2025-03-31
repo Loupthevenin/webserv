@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   utils_handleRequest.cpp                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: opdibia <opdibia@student.42.fr>            +#+  +:+       +#+        */
+/*   By: opdi-bia <opdi-bia@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/14 14:57:19 by ltheveni          #+#    #+#             */
-/*   Updated: 2025/03/30 20:27:46 by ltheveni         ###   ########.fr       */
+/*   Updated: 2025/03/31 12:00:50 by opdi-bia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,11 +14,10 @@
 #include <netinet/in.h>
 #include <sys/socket.h>
 
-void sendError(int fd, int statusCode, const std::string &body) {
+void sendError(int fd, int statusCode) {
   HttpResponse response;
   response.setStatus(statusCode);
-  // filepath here;
-  response.setBody(body);
+  response.setBody(buildErrorResponse(statusCode));
 
   std::string message = response.toString();
   send(fd, message.c_str(), message.size(), 0);
@@ -134,6 +133,8 @@ std::string buildErrorResponse(int code) {
   oss << "HTTP/1.1 " << code << " ";
 
   switch (code) {
+  case 400:
+    oss << "Bad Request";
   case 403:
     oss << "Forbidden";
     break;
@@ -172,8 +173,8 @@ std::string set_autoindex(const std::string &filePath) {
   DIR *dir = opendir(filePath.c_str());
 
   if (!dir) {
-    std::cerr << "[ERROR] Impossible d'ouvrir le dossier : " << filePath
-              << std::endl;
+    std::string message = std::string("Impossible d'ouvrir le dossier : ") + filePath;
+    logError(message);
     return ("");
   }
   html << "<html><head><title>Index of " << filePath << "</title></head><body>";

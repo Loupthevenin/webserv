@@ -6,7 +6,7 @@
 /*   By: opdi-bia <opdi-bia@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/12 11:06:35 by opdibia           #+#    #+#             */
-/*   Updated: 2025/03/27 15:34:31 by opdi-bia         ###   ########.fr       */
+/*   Updated: 2025/03/31 12:15:50 by opdi-bia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,5 +79,5 @@ public:
             return("method limit exceeded");
         }
     };
-    // void display() const;
+    void display() const;
 };

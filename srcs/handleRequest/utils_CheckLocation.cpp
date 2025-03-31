@@ -6,7 +6,7 @@
 /*   By: opdi-bia <opdi-bia@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/27 12:11:39 by opdi-bia          #+#    #+#             */
-/*   Updated: 2025/03/27 15:30:29 by opdi-bia         ###   ########.fr       */
+/*   Updated: 2025/03/31 12:50:49 by opdi-bia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,7 +54,8 @@ int set_error_loc(Server &serverConfig, HttpResponse &response,
     response.setStatus(code);
     std::string errorFileLoc = check_error_loc(code, location);
     std::string errorFileServ = check_error_server(code, serverConfig);
-  
+    
+    logError(buildErrorResponse(code));
     if (!errorFileLoc.empty()) {
       std::string root = location.get_root();
       if (!root.empty()) {
@@ -126,6 +127,7 @@ int set_response_loc(Server &server, HttpResponse &response,
                            Location &location, std::string &filePath, HttpRequest &request, int fd) {
     std::string extension = check_header(filePath); 
     int code_return = check_file(filePath);
+  // std::cout << "code = " << code_return << " filePath " << filePath << std::endl;
     if (code_return != 200) {
       if(set_error_loc(server, response, location, code_return, request, fd) == 1)
         return(1);

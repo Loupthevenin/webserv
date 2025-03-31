@@ -6,7 +6,7 @@
 /*   By: opdi-bia <opdi-bia@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/21 16:51:53 by opdibia           #+#    #+#             */
-/*   Updated: 2025/03/27 14:55:27 by opdi-bia         ###   ########.fr       */
+/*   Updated: 2025/03/31 12:45:02 by opdi-bia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,8 +64,8 @@ std::string set_filePath_loc(Location &location, std::string locName,
 int check_location(Location &location, Server &serverConfig,
                    HttpRequest &request, HttpResponse &response, int fd) {
   std::string filePath;
-
-  if (!location.is_method("GET") && !serverConfig.is_method("GET")) {
+  // std::cout << "method : " << location.get_method(1) << " host = "   << serverConfig.get_host() << std::endl;
+  if ((location.is_emptyMethods() == false && !location.is_method("GET")) || (location.is_emptyMethods() == true && !serverConfig.is_method("GET"))) {
     std::string extension = check_header(filePath); 
     response.setHeader("Content-Type", extension);
     if(set_error_loc(serverConfig, response, location, 405, request, fd) == 1)
@@ -122,7 +122,7 @@ int check_location(Location &location, Server &serverConfig,
   }
   int res = try_exec_cgi_loc(location,serverConfig, request, response, fd, filePath);
   if(res != 0)
-    return(res);
+    return(res);  
   if(set_response_loc(serverConfig, response, location, filePath, request, fd) == 1)
     return(1);
   return (0);

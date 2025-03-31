@@ -6,7 +6,7 @@
 /*   By: opdi-bia <opdi-bia@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/27 12:06:44 by opdi-bia          #+#    #+#             */
-/*   Updated: 2025/03/27 15:29:04 by opdi-bia         ###   ########.fr       */
+/*   Updated: 2025/03/31 10:53:06 by opdi-bia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,7 +38,8 @@ std::string set_filePath_serv(Server &serverConfig, HttpRequest &request) {
 int set_error_serv(Server &serverConfig, HttpResponse &response, int code, HttpRequest &request, int fd) {
     response.setStatus(code);
     std::string errorFileServ = check_error_server(code, serverConfig);
-  
+    
+    logError(buildErrorResponse(code));
     if (!errorFileServ.empty()) {
       std::string root = serverConfig.get_root();
       if (!root.empty()) {
