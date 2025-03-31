@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   CGIExec.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ltheveni <ltheveni@student.42.fr>          +#+  +:+       +#+        */
+/*   By: opdi-bia <opdi-bia@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/18 09:44:07 by ltheveni          #+#    #+#             */
-/*   Updated: 2025/03/24 14:37:03 by ltheveni         ###   ########.fr       */
+/*   Updated: 2025/03/31 11:58:21 by opdi-bia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,7 @@
 #include <sys/wait.h>
 #include <unistd.h>
 #include <vector>
+#include "log.hpp"
 
 class CGIExec {
 private:

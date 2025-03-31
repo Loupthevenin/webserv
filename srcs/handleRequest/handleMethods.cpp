@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   handleMethods.cpp                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: opdibia <opdibia@student.42.fr>            +#+  +:+       +#+        */
+/*   By: opdi-bia <opdi-bia@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/27 12:24:35 by opdi-bia          #+#    #+#             */
-/*   Updated: 2025/03/28 20:27:39 by ltheveni         ###   ########.fr       */
+/*   Updated: 2025/03/31 12:59:49 by opdi-bia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,11 +15,17 @@
 std::string find_loc(HttpRequest &request, Server &serverConfig) {
     std::string uri = request.getUri();
     const std::map<std::string, Location>& locations = serverConfig.getLocation();
-
+    // for (std::map<std::string, Location>::const_iterator it = locations.begin(); it != locations.end(); ++it) {
+    //     std::cout << "Location: " << it->first << std::endl;
+    //     it->second.display();
+    // }
     std::string test = uri;
     while (true) {
         if (locations.find(test) != locations.end())
-            return(test);
+        {
+          // std::cout << "loc: " << test << std::endl;
+          return(test);
+        }
         if (test == "/" || test.empty())
             break;
         while (!test.empty() && test[test.size() - 1] == '/' && test != "/")
@@ -29,14 +35,20 @@ std::string find_loc(HttpRequest &request, Server &serverConfig) {
             break;
         test = test.substr(0, slash + 1);
     }
-    if (locations.find("/") != locations.end())
+    if (locations.find("/") == locations.end())
+    {
+      // std::cout << "loc: " << test << std::endl;
         return("/");
+    }
+    // std::cout << "loc: vide" << std::endl;
     return("");
+
 }
 
 int	handleGet(HttpRequest &request, HttpResponse &response, Server &serverConfig, int fd){
     
     std::string loc = find_loc(request, serverConfig);
+
     if(loc.empty())
     {
         if(check_server(request, response, serverConfig, fd) == 1)
@@ -44,16 +56,15 @@ int	handleGet(HttpRequest &request, HttpResponse &response, Server &serverConfig
     }
     else
     {
-        const std::map<std::string, Location>& locations = serverConfig.getLocation();
-        Location loc_path = locations.at(loc);
-        if(check_location(loc_path, serverConfig, request, response, fd) == 1)
-            return(1);
+      const std::map<std::string, Location>& locations = serverConfig.getLocation();
+      Location loc_path = locations.at(loc);
+      if(check_location(loc_path, serverConfig, request, response, fd) == 1)
+          return(1);
     }
     return(0);
 }
 
 int	handlePost(HttpRequest &request, HttpResponse &response, Server &serverConfig, int fd){
-    std::cout << "ici dans handle post body request post  : " << request.getUri() << std::endl;
     std::string filePath = request.getUri();
     std::string loc = find_loc(request, serverConfig);
     if(loc.empty())
@@ -82,7 +93,7 @@ int	handlePost(HttpRequest &request, HttpResponse &response, Server &serverConfi
     {
         const std::map<std::string, Location>& locations = serverConfig.getLocation();
         Location location = locations.at(loc);
-        if (!location.is_method("POST") && !serverConfig.is_method("POST")) {
+        if ((location.is_emptyMethods() == false && !location.is_method("POST") )|| (location.is_emptyMethods() == true && !serverConfig.is_method("POST"))) {
             std::string extension = check_header(filePath); 
             response.setHeader("Content-Type", extension);
             if(set_error_loc(serverConfig, response, location, 405, request, fd) == 1)
@@ -109,8 +120,7 @@ int	handlePost(HttpRequest &request, HttpResponse &response, Server &serverConfi
 int handleDelete(HttpRequest &request, HttpResponse &response, Server &serverConfig, int fd) {
     std::string filePath = request.getUri();
     std::string loc = find_loc(request, serverConfig);
-    const std::map<std::string, Location>& locations = serverConfig.getLocation();
-    Location location = locations.at(loc);
+    
     if(loc.empty())
     {
       if(serverConfig.is_method("DELETE") == false)
@@ -128,10 +138,13 @@ int handleDelete(HttpRequest &request, HttpResponse &response, Server &serverCon
           return(1);
         return (0);
       }
+      filePath = set_filePath_serv(serverConfig, request);
     }
     else
     {
-      if (!location.is_method("DELETE") && !serverConfig.is_method("DELETE")) {
+      const std::map<std::string, Location>& locations = serverConfig.getLocation();
+      Location location = locations.at(loc);
+      if ((location.is_emptyMethods() == false && !location.is_method("DELETE")) || (location.is_emptyMethods() == true && !serverConfig.is_method("DELETE"))) {
           std::string extension = check_header(filePath); 
           response.setHeader("Content-Type", extension);
           if(set_error_loc(serverConfig, response, location, 405, request, fd) == 1)
@@ -145,9 +158,8 @@ int handleDelete(HttpRequest &request, HttpResponse &response, Server &serverCon
           return(1);
         return (0);
       }
+      filePath = set_filePath_loc(location, loc, serverConfig, request);
     }
-    std::string file = request.getUri(); 
-    file = set_filePath_loc(location, loc, serverConfig, request);
-    check_dir(response, file);
+    check_dir(response, filePath);
     return(0);
 }

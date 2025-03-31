@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   utils_Post.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: opdibia <opdibia@student.42.fr>            +#+  +:+       +#+        */
+/*   By: opdi-bia <opdi-bia@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/27 12:58:00 by opdi-bia          #+#    #+#             */
-/*   Updated: 2025/03/30 15:40:53 by ltheveni         ###   ########.fr       */
+/*   Updated: 2025/03/31 11:48:54 by opdi-bia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,8 +50,6 @@ int create_file(HttpRequest &request, HttpResponse &response) {
   fileData.erase(0, fileData.find_first_not_of(" \t\r\n"));
   fileData.erase(fileData.find_last_not_of(" \t\r\n") + 1);
 
-  std::cout << "ici file name  : " << fileName << " ici data = " << fileData
-            << std::endl;
   if (isValidFilename(fileName) == false) {
     response.setStatus(400);
     response.setHeader("Content-Type", "text/plain");

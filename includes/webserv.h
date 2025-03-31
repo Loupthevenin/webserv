@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   webserv.h                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: opdibia <opdibia@student.42.fr>            +#+  +:+       +#+        */
+/*   By: opdi-bia <opdi-bia@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/11 12:15:33 by ltheveni          #+#    #+#             */
-/*   Updated: 2025/03/30 20:28:04 by ltheveni         ###   ########.fr       */
+/*   Updated: 2025/03/31 10:37:52 by opdi-bia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,7 +55,7 @@ int		check_server(HttpRequest &request, HttpResponse &response,
 void	check_dir(HttpResponse &response, std::string filePath);
 
 // Utils handleRequest
-void	sendError(int fd, int statusCode, const std::string &body);
+void	sendError(int fd, int statusCode);
 void	closeConnexion(int fd, Epoll &epoll, std::map<int,
 			HttpRequest> &requests);
 std::string readFile(const std::string &filePath);

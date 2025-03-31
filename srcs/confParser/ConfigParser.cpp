@@ -6,7 +6,7 @@
 /*   By: opdi-bia <opdi-bia@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/09 12:17:37 by ltheveni          #+#    #+#             */
-/*   Updated: 2025/03/30 13:22:41 by ltheveni         ###   ########.fr       */
+/*   Updated: 2025/03/31 12:28:05 by opdi-bia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,18 +29,39 @@ ConfigParser::~ConfigParser() {
   _infile.close();
 }
 
-std::string parse_value(const std::string &raw) {
+std::string ConfigParser::parse_value(const std::string &raw) {
   std::string value = raw;
-
   value.erase(0, value.find_first_not_of(" \t"));
   value.erase(value.find_last_not_of(" \t") + 1);
 
-  size_t stop = value.find_first_of("{;");
-  if (stop != std::string::npos) {
+  size_t brackets = value.find_first_of("{");
+  size_t stop = value.find_first_of(";");
+  if(brackets == std::string::npos && !raw.empty())
+  {
+    if (stop != std::string::npos) {
       value = value.substr(0, stop);
       value.erase(value.find_last_not_of(" \t") + 1);
+    }
+    else
+      throw WrongValueExeption("Missing ;" + value);
+  }
+  if (brackets != std::string::npos) {
+    value = value.substr(0, brackets);
+    value.erase(value.find_last_not_of(" \t") + 1);
   }
   return value;
+}
+
+static void find_brackets(const std::string &key, const std::string &value, int *brackets){
+  
+    if (value.find("{") != std::string::npos)
+      (*brackets)++;
+    if (value.find("}") != std::string::npos)
+      (*brackets)--;
+    if (key.find("{") != std::string::npos)
+      (*brackets)++;
+    if (key.find("}") != std::string::npos)
+      (*brackets)--;
 }
 
 void ConfigParser::parseConfig() {
@@ -50,10 +71,12 @@ void ConfigParser::parseConfig() {
   Server currentServer;
   Location currentLocation;
   std::string currentLocationPath = "";
-
+  int brackets = 0;
+  
   while(_infile >> key)
   {
     getline(_infile, value);
+    find_brackets(key, value, &brackets);
     value = parse_value(value);
     if(key == "server")
     {
@@ -101,6 +124,9 @@ void ConfigParser::parseConfig() {
   }
   else  
     throw WrongValueExeption("listen missing");
+  if(brackets != 0)
+    throw WrongValueExeption("Brackets open");
+    
 }
 
 bool  ConfigParser::check_name(std::string value)
@@ -128,7 +154,6 @@ void ConfigParser::check_isNameServer(Server &currentServer)
       oss.str("");
       oss.clear();
       oss << i; 
-      std::cout << "i = " << oss.str();
       default_name = "";
     }
     currentServer.set_mapValue("server_name", default_name);
@@ -262,20 +287,23 @@ void ConfigParser::check_body_size(Server &currentServer, std::string value)
 void ConfigParser::check_value(Server &currentServer, std::string key, std::string value) {
   if(value.empty())
     throw WrongValueExeption("empty key : " + key);
-  if(key == "listen")
+  else if(key == "listen")
     check_listen(currentServer, value);
-  if(key == "server_name")
+  else if(key == "server_name")
     check_serverName(value);
-  if(key == "allow_methods")
+  else if(key == "allow_methods")
     check_allowMethod(value);
-  if(key == "autoindex")
+  else if(key == "autoindex")
     check_autoindex(value);
-  if(key == "client_max_body_size")
+  else if(key == "client_max_body_size")
     check_body_size(currentServer, value);
   else if(key == "cgi_extension")
     check_cgi_ext(value);
   else if(key == "cgi_enable")
     check_cgi_enable(value);
+  else if(key.compare("root") && key.compare("index") && key.compare("error_page"))
+    throw WrongValueExeption("invalid key " + key);
+  
 }
 
 void  ConfigParser::setMethod(Server &c_server, std::string value) {

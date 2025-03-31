@@ -6,7 +6,7 @@
 /*   By: opdi-bia <opdi-bia@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/11 16:09:00 by ltheveni          #+#    #+#             */
-/*   Updated: 2025/03/30 20:27:51 by ltheveni         ###   ########.fr       */
+/*   Updated: 2025/03/31 12:03:49 by opdi-bia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -107,7 +107,9 @@ static Server *findServerConfig(HttpRequest &request, ConfigParser &conf,
         return vec_servers[i];
     }
   } else if (vec_servers.size() == 1) {
-    return vec_servers[0];
+    std::string server_conf_host = vec_servers[0]->get_server_name();
+      if (server_conf_host.empty() || server_conf_host == client_host)
+        return vec_servers[0];
   }
   logError("404 Not Found: No matching server_name block found for host");
   return (NULL);
@@ -128,8 +130,7 @@ void handleRequest(int fd, Epoll &epoll, ConfigParser &conf) {
       request.appendRawData(buffer);
     } catch (const std::exception &e) {
       logError(e.what());
-      // 400 BAD REQUEST
-      sendError(fd, 400, "");
+      sendError(fd, 400);
       closeConnexion(fd, epoll, requests);
       return;
     }
@@ -142,7 +143,8 @@ void handleRequest(int fd, Epoll &epoll, ConfigParser &conf) {
       static_cast<size_t>(request.getContentLength())) {
     Server *serverConfig = findServerConfig(request, conf, fd);
     if (!serverConfig) {
-      sendError(fd, 404, "<h1>404 Not Found</h1>");
+      sendError(fd, 404);
+      logError("404 - Not Found block server");
       closeConnexion(fd, epoll, requests);
       return;
     }

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   CGIExec.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ltheveni <ltheveni@student.42.fr>          +#+  +:+       +#+        */
+/*   By: opdi-bia <opdi-bia@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/18 09:43:53 by ltheveni          #+#    #+#             */
-/*   Updated: 2025/03/29 10:10:53 by ltheveni         ###   ########.fr       */
+/*   Updated: 2025/03/31 11:59:47 by opdi-bia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,12 +41,14 @@ void CGIExec::setupEnvironment(const HttpRequest &request) {
 
 bool CGIExec::isValidScriptPath() {
   if (access(scriptPath.c_str(), F_OK) == -1) {
-    std::cerr << "Error: Script not found: " << scriptPath << std::endl;
+    std::string message = std::string("Error: Script not found: ") + scriptPath;
+    logError(message);
     httpErrorCode = 404;
     return false;
   }
   if (access(scriptPath.c_str(), X_OK) == -1) {
-    std::cerr << "Error: Script is not executable: " << scriptPath << std::endl;
+    std::string message = std::string("Error: Script is not executable: ") + scriptPath;
+    logError(message);
     httpErrorCode = 403;
     return false;
   }

@@ -6,7 +6,7 @@
 /*   By: opdi-bia <opdi-bia@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/09 12:17:51 by ltheveni          #+#    #+#             */
-/*   Updated: 2025/03/27 15:22:45 by opdi-bia         ###   ########.fr       */
+/*   Updated: 2025/03/31 11:41:07 by opdi-bia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,6 +37,7 @@ private:
   void check_value(Server &currentServer, std::string key, std::string value);
   void check_cgi_ext(std::string value);
   void check_cgi_enable(std::string value);
+  std::string parse_value(const std::string &raw);
   
 public:
   std::vector<Server> servers;
