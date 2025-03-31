@@ -6,7 +6,7 @@
 /*   By: opdi-bia <opdi-bia@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/09 11:08:41 by ltheveni          #+#    #+#             */
-/*   Updated: 2025/03/31 15:46:48 by opdi-bia         ###   ########.fr       */
+/*   Updated: 2025/03/31 21:34:23 by ltheveni         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,11 +24,6 @@ static void initializeServer(Socket &serverSocket, Epoll &epoll, int port) {
 static void handleNewConnection(Socket &serverSocket, Epoll &epoll) {
   int client_fd = serverSocket.acceptConnection();
   serverSocket.setSocketNonBlocking(client_fd);
-
-  std::string client_ip = serverSocket.getClientIp(client_fd);
-  int client_port = serverSocket.getClientPort(client_fd);
-  if (!client_ip.empty() || client_port != -1)
-    logConnexion(client_ip, client_port);
 
   epoll.addFd(client_fd, EPOLLIN);
 }

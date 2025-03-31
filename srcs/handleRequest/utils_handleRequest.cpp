@@ -6,7 +6,7 @@
 /*   By: opdi-bia <opdi-bia@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/14 14:57:19 by ltheveni          #+#    #+#             */
-/*   Updated: 2025/03/31 16:21:14 by opdi-bia         ###   ########.fr       */
+/*   Updated: 2025/03/31 21:09:09 by ltheveni         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,9 +95,7 @@ void check_dir(HttpResponse &response, std::string file) {
     response.setStatus(200);
     response.setHeader("Content-Type", "text/plain");
     response.setBody("200 - file deleted");
-  }
-  else
-  {
+  } else {
     response.setStatus(405);
     response.setHeader("Content-Type", "text/plain");
     response.setBody("405 - Not Allowed");
@@ -141,6 +139,7 @@ std::string buildErrorResponse(int code) {
   switch (code) {
   case 400:
     oss << "Bad Request";
+    break;
   case 403:
     oss << "Forbidden";
     break;
@@ -179,7 +178,8 @@ std::string set_autoindex(const std::string &filePath) {
   DIR *dir = opendir(filePath.c_str());
 
   if (!dir) {
-    std::string message = std::string("Impossible d'ouvrir le dossier : ") + filePath;
+    std::string message =
+        std::string("Impossible d'ouvrir le dossier : ") + filePath;
     logError(message);
     return ("");
   }
@@ -233,34 +233,33 @@ std::string check_header(std::string uri) {
   return ("text/html");
 }
 
-int getServerPort(int client_fd)
-{
-	struct sockaddr_in	server_address;
-	socklen_t server_len = sizeof(server_address);
+int getServerPort(int client_fd) {
+  struct sockaddr_in server_address;
+  socklen_t server_len = sizeof(server_address);
 
-	if (getsockname(client_fd, (struct sockaddr *)&server_address, &server_len) == -1)
-	{
-		perror("getsockname");
-		return -1;
-	}
-	return ntohs(server_address.sin_port);
+  if (getsockname(client_fd, (struct sockaddr *)&server_address, &server_len) ==
+      -1) {
+    perror("getsockname");
+    return -1;
+  }
+  return ntohs(server_address.sin_port);
 }
 
-std::string getServerIp(int client_fd)
-{
-	struct sockaddr_in	server_address;
-	socklen_t server_len = sizeof(server_address);
+std::string getServerIp(int client_fd) {
+  struct sockaddr_in server_address;
+  socklen_t server_len = sizeof(server_address);
 
-	if (getsockname(client_fd, (struct sockaddr *)&server_address, &server_len) == -1)
-	{
-		perror("getsockname");
-		return "";
-	}
+  if (getsockname(client_fd, (struct sockaddr *)&server_address, &server_len) ==
+      -1) {
+    perror("getsockname");
+    return "";
+  }
 
-	char server_ip[INET_ADDRSTRLEN];
-	if (inet_ntop(AF_INET, &server_address.sin_addr, server_ip, sizeof(server_ip)) == NULL) {
-		perror("inet_ntop");
-		return "";
-	}
-	return std::string(server_ip);
+  char server_ip[INET_ADDRSTRLEN];
+  if (inet_ntop(AF_INET, &server_address.sin_addr, server_ip,
+                sizeof(server_ip)) == NULL) {
+    perror("inet_ntop");
+    return "";
+  }
+  return std::string(server_ip);
 }
