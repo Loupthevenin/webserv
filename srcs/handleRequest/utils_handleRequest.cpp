@@ -6,7 +6,7 @@
 /*   By: opdi-bia <opdi-bia@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/14 14:57:19 by ltheveni          #+#    #+#             */
-/*   Updated: 2025/03/31 12:00:50 by opdi-bia         ###   ########.fr       */
+/*   Updated: 2025/03/31 16:21:14 by opdi-bia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,6 +95,12 @@ void check_dir(HttpResponse &response, std::string file) {
     response.setStatus(200);
     response.setHeader("Content-Type", "text/plain");
     response.setBody("200 - file deleted");
+  }
+  else
+  {
+    response.setStatus(405);
+    response.setHeader("Content-Type", "text/plain");
+    response.setBody("405 - Not Allowed");
   }
 }
 
@@ -222,9 +228,9 @@ std::string check_header(std::string uri) {
     std::map<std::string, std::string>::iterator it = c_type.find(extension);
     if (it != c_type.end())
       return it->second;
-    return ("application/octet-stream");
+    return ("text/html");
   }
-  return ("application/octet-stream");
+  return ("text/html");
 }
 
 int getServerPort(int client_fd)

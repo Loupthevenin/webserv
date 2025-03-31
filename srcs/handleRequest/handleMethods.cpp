@@ -6,7 +6,7 @@
 /*   By: opdi-bia <opdi-bia@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/27 12:24:35 by opdi-bia          #+#    #+#             */
-/*   Updated: 2025/03/31 12:59:49 by opdi-bia         ###   ########.fr       */
+/*   Updated: 2025/03/31 15:31:49 by opdi-bia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,17 +15,10 @@
 std::string find_loc(HttpRequest &request, Server &serverConfig) {
     std::string uri = request.getUri();
     const std::map<std::string, Location>& locations = serverConfig.getLocation();
-    // for (std::map<std::string, Location>::const_iterator it = locations.begin(); it != locations.end(); ++it) {
-    //     std::cout << "Location: " << it->first << std::endl;
-    //     it->second.display();
-    // }
     std::string test = uri;
     while (true) {
         if (locations.find(test) != locations.end())
-        {
-          // std::cout << "loc: " << test << std::endl;
           return(test);
-        }
         if (test == "/" || test.empty())
             break;
         while (!test.empty() && test[test.size() - 1] == '/' && test != "/")
@@ -36,13 +29,8 @@ std::string find_loc(HttpRequest &request, Server &serverConfig) {
         test = test.substr(0, slash + 1);
     }
     if (locations.find("/") == locations.end())
-    {
-      // std::cout << "loc: " << test << std::endl;
         return("/");
-    }
-    // std::cout << "loc: vide" << std::endl;
     return("");
-
 }
 
 int	handleGet(HttpRequest &request, HttpResponse &response, Server &serverConfig, int fd){
@@ -161,5 +149,6 @@ int handleDelete(HttpRequest &request, HttpResponse &response, Server &serverCon
       filePath = set_filePath_loc(location, loc, serverConfig, request);
     }
     check_dir(response, filePath);
+    
     return(0);
 }

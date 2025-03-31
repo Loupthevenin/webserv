@@ -6,7 +6,7 @@
 /*   By: opdi-bia <opdi-bia@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/27 12:58:00 by opdi-bia          #+#    #+#             */
-/*   Updated: 2025/03/31 11:48:54 by opdi-bia         ###   ########.fr       */
+/*   Updated: 2025/03/31 15:31:23 by opdi-bia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,9 +34,9 @@ int create_file(HttpRequest &request, HttpResponse &response) {
   size_t found_data = buffer.find("data=");
 
   if (found_file == std::string::npos || found_data == std::string::npos) {
-    response.setStatus(400);
+    response.setStatus(405);
     response.setHeader("Content-Type", "text/plain");
-    response.setBody("400 - Requête invalide");
+    response.setBody("405 - Not Allowed");
     return (0);
   }
   found_file += 5;

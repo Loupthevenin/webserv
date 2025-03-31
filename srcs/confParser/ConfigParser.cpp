@@ -6,7 +6,7 @@
 /*   By: opdi-bia <opdi-bia@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/09 12:17:37 by ltheveni          #+#    #+#             */
-/*   Updated: 2025/03/31 12:28:05 by opdi-bia         ###   ########.fr       */
+/*   Updated: 2025/03/31 17:30:47 by opdi-bia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,7 +43,7 @@ std::string ConfigParser::parse_value(const std::string &raw) {
       value.erase(value.find_last_not_of(" \t") + 1);
     }
     else
-      throw WrongValueExeption("Missing ;" + value);
+      throw WrongValueExeption("Missing \";\" at the end of : " + value);
   }
   if (brackets != std::string::npos) {
     value = value.substr(0, brackets);
@@ -125,8 +125,7 @@ void ConfigParser::parseConfig() {
   else  
     throw WrongValueExeption("listen missing");
   if(brackets != 0)
-    throw WrongValueExeption("Brackets open");
-    
+    throw WrongValueExeption("Brackets open");  
 }
 
 bool  ConfigParser::check_name(std::string value)
@@ -141,23 +140,10 @@ bool  ConfigParser::check_name(std::string value)
 
 void ConfigParser::check_isNameServer(Server &currentServer)
 { 
-  int i = 0;
-  std::ostringstream oss;
-  oss << i; 
   std::string default_name = "";
   
   if(currentServer.get_mapValue("server_name").isEmpty())
-  {
-    while(!check_name(default_name))
-    {
-      i++;
-      oss.str("");
-      oss.clear();
-      oss << i; 
-      default_name = "";
-    }
     currentServer.set_mapValue("server_name", default_name);
-  }
 }
 
 void  ConfigParser::set_errorPage(Server &currentServer, std::string value){
@@ -213,7 +199,7 @@ void ConfigParser::check_listen(Server &currentServer, std::string value) {
     currentServer.set_mapValue("port", num_port);
   }
   else  
-    currentServer.set_mapValue("port", 80);
+    currentServer.set_mapValue("port", 8080);
 }
 
 void ConfigParser::check_serverName(std::string value) {
