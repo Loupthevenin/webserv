@@ -6,7 +6,7 @@
 /*   By: opdi-bia <opdi-bia@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/12 11:06:50 by opdibia           #+#    #+#             */
-/*   Updated: 2025/03/31 12:50:23 by opdi-bia         ###   ########.fr       */
+/*   Updated: 2025/03/31 15:16:22 by opdi-bia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -207,7 +207,6 @@ bool    Location::is_emptyMethods(){
 bool    Location::is_method(std::string str){
     for(int i = 0; i < 3; i++)
     {
-        // std::cout << "method = " << _method[i] << std::endl;
         if(_method[i] == str)
             return(true);
     }

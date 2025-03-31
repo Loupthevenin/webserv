@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   webserv.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: opdibia <opdibia@student.42.fr>            +#+  +:+       +#+        */
+/*   By: opdi-bia <opdi-bia@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/09 11:08:41 by ltheveni          #+#    #+#             */
-/*   Updated: 2025/03/28 11:48:01 by ltheveni         ###   ########.fr       */
+/*   Updated: 2025/03/31 15:46:48 by opdi-bia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,12 +67,12 @@ int main(int argc, char **argv) {
   try {
     ConfigParser conf(argv[1]);
     conf.parseConfig();
-
     Epoll epoll(10);
     std::vector<Socket> serverSockets(conf.servers.size());
     std::set<int> ports;
 
     for (size_t i = 0; i < conf.servers.size(); i++) {
+
       int port = conf.servers[i].get_port();
       if (ports.find(port) == ports.end()) {
         initializeServer(serverSockets[i], epoll, port);

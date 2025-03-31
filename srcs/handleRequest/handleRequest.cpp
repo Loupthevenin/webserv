@@ -6,7 +6,7 @@
 /*   By: opdi-bia <opdi-bia@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/11 16:09:00 by ltheveni          #+#    #+#             */
-/*   Updated: 2025/03/31 12:03:49 by opdi-bia         ###   ########.fr       */
+/*   Updated: 2025/03/31 17:41:51 by opdi-bia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,8 +27,6 @@ static void handleMethod(int fd, HttpRequest &request, Server &serverConfig) {
     logInfo("HTTP", "Request DELETE", request.getUri(), _CYAN);
     handleDelete(request, response, serverConfig, fd);
   }
-  // std::cout << "status = " << response.getStatus()
-  //           << " body = " << response.getBody() << std::endl;
   std::string message = response.toString();
   send(fd, message.c_str(), message.size(), 0);
   close(fd);
@@ -80,8 +78,8 @@ static Server *findServerConfig(HttpRequest &request, ConfigParser &conf,
     client_host = client_host_raw;
   }
 
-  std::cout << "client_ip: " << client_ip << ", client_port: " << client_port
-            << ", client_host: " << client_host << std::endl;
+  // std::cout << "client_ip: " << client_ip << ", client_port: " << client_port
+  //           << ", client_host: " << client_host << std::endl;
   std::vector<Server *> vec_servers;
 
   for (size_t i = 0; i < conf.servers.size(); i++) {
@@ -90,9 +88,9 @@ static Server *findServerConfig(HttpRequest &request, ConfigParser &conf,
     std::string server_conf_host = srv.get_server_name();
     std::string server_conf_ip = srv.get_host();
     int server_conf_port = srv.get_port();
-    std::cout << "server_ip: " << server_conf_ip
-              << ", server_port: " << server_conf_port
-              << ", server_host: " << server_conf_host << std::endl;
+    // std::cout << "server_ip: " << server_conf_ip
+    //           << ", server_port: " << server_conf_port
+    //           << ", server_host: " << server_conf_host << std::endl;
 
     if (server_conf_port == client_port) {
       if (server_conf_ip == client_ip || server_conf_ip == "0.0.0.0")

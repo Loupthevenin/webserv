@@ -6,7 +6,7 @@
 /*   By: opdi-bia <opdi-bia@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/21 16:51:53 by opdibia           #+#    #+#             */
-/*   Updated: 2025/03/31 12:45:02 by opdi-bia         ###   ########.fr       */
+/*   Updated: 2025/03/31 16:18:23 by opdi-bia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,7 +64,6 @@ std::string set_filePath_loc(Location &location, std::string locName,
 int check_location(Location &location, Server &serverConfig,
                    HttpRequest &request, HttpResponse &response, int fd) {
   std::string filePath;
-  // std::cout << "method : " << location.get_method(1) << " host = "   << serverConfig.get_host() << std::endl;
   if ((location.is_emptyMethods() == false && !location.is_method("GET")) || (location.is_emptyMethods() == true && !serverConfig.is_method("GET"))) {
     std::string extension = check_header(filePath); 
     response.setHeader("Content-Type", extension);
