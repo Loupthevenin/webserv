@@ -6,7 +6,7 @@
 /*   By: opdi-bia <opdi-bia@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/14 14:57:19 by ltheveni          #+#    #+#             */
-/*   Updated: 2025/03/31 21:09:09 by ltheveni         ###   ########.fr       */
+/*   Updated: 2025/04/01 11:13:27 by ltheveni         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,7 +60,7 @@ int check_file(std::string &filePath) {
   if (stat(filePath.c_str(), &s) != 0)
     return (404);
   if (S_ISDIR(s.st_mode))
-    return (403);
+    return (404);
   if (access(filePath.c_str(), R_OK) != 0)
     return (403);
   std::ifstream file(filePath.c_str(), std::ios::in | std::ios::binary);
