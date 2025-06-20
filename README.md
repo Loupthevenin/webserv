@@ -2,7 +2,9 @@
 
 ## 🌐 Objective
 
-The purpose of this project is to build a fully functional HTTP/1.1 server in C++98. You will implement a non-blocking web server capable of handling multiple clients, serving static content, executing CGI scripts, and responding correctly to GET, POST, and DELETE HTTP requests.
+Webserv is an HTTP/1.1 server that I developed in C++98. The goal of this project was to better understand how modern web servers work under the hood by implementing one from scratch. My server is non-blocking, event-driven, and capable of handling multiple simultaneous clients efficiently using `epoll()`.
+
+It supports static file serving, basic routing, CGI execution, file uploads, and custom error pages—all configured through a flexible configuration file.
 
 ## 🧠 Skills Involved
 
